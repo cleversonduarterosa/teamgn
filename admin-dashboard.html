@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Team GN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --verde-neon: #00FF41;
+            --verde-primario: #2E7D32;
+            --verde-escuro: #0A3D0A;
+            --fundo-principal: #0A1A0F;
+            --fundo-card: #0D2818;
+            --fundo-sidebar: #081510;
+            --fundo-input: #122E1C;
+            --texto-principal: #E6EDF3;
+            --texto-secundario: #8B949E;
+            --borda: #1E4D2B;
+            --erro: #F85149;
+            --sucesso: #3FB950;
+            --aviso: #F0883E;
+            --info: #58A6FF;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--fundo-principal);
+            color: var(--texto-principal);
+            min-height: 100vh;
+        }
+        
+        /* Layout */
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--fundo-sidebar);
+            border-right: 1px solid var(--borda);
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            z-index: 100;
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 25px;
+            border-bottom: 1px solid var(--borda);
+            margin-bottom: 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .logo svg {
+            width: 45px;
+            height: 45px;
+            filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5));
+        }
+        
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .logo-text .nome {
+            font-size: 0.95rem;
+            font-weight: 900;
+            color: var(--verde-neon);
+            letter-spacing: 1px;
+        }
+        
+        .logo-text .subtitulo {
+            font-size: 0.6rem;
+            color: var(--texto-secundario);
+        }
+        
+        .admin-badge {
+            display: inline-block;
+            background: var(--verde-neon);
+            color: var(--fundo-principal);
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-top: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .nav-section {
+            padding: 0 15px;
+            margin-bottom: 20px;
+        }
+        
+        .nav-section-title {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--texto-secundario);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 0 10px;
+            margin-bottom: 10px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: var(--texto-secundario);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin-bottom: 4px;
+        }
+        
+        .nav-item:hover {
+            background: var(--fundo-card);
+            color: var(--texto-principal);
+        }
+        
+        .nav-item.active {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--verde-neon);
+            border-left: 3px solid var(--verde-neon);
+        }
+        
+        .nav-item .icon {
+            font-size: 1.1rem;
+        }
+        
+        .nav-item .badge {
+            margin-left: auto;
+            background: var(--erro);
+            color: white;
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+        
+        /* Main content */
+        .main {
+            flex: 1;
+            margin-left: 260px;
+            padding: 25px;
+        }
+        
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 15px;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .user-menu:hover {
+            border-color: var(--verde-neon);
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: var(--verde-primario);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            border-color: var(--verde-neon);
+            transform: translateY(-3px);
+        }
+        
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .stat-icon {
+            font-size: 2rem;
+        }
+        
+        .stat-trend {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 20px;
+        }
+        
+        .stat-trend.up {
+            background: rgba(63, 185, 80, 0.15);
+            color: var(--sucesso);
+        }
+        
+        .stat-trend.down {
+            background: rgba(248, 81, 73, 0.15);
+            color: var(--erro);
+        }
+        
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: var(--verde-neon);
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: var(--texto-secundario);
+            font-size: 0.85rem;
+        }
+        
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+        }
+        
+        /* Card comum */
+        .card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        .card-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+        
+        .card-action {
+            color: var(--verde-neon);
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        /* Lista de itens */
+        .list-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        .list-item:last-child {
+            border-bottom: none;
+        }
+        
+        .list-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--verde-primario);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        
+        .list-content {
+            flex: 1;
+        }
+        
+        .list-title {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .list-subtitle {
+            font-size: 0.8rem;
+            color: var(--texto-secundario);
+        }
+        
+        .list-value {
+            text-align: right;
+        }
+        
+        .list-value-main {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            color: var(--verde-neon);
+        }
+        
+        .list-value-sub {
+            font-size: 0.75rem;
+            color: var(--texto-secundario);
+        }
+        
+        /* Atividades recentes */
+        .activity-item {
+            display: flex;
+            gap: 15px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+        
+        .activity-icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .activity-icon.novo { background: rgba(63, 185, 80, 0.15); }
+        .activity-icon.treino { background: rgba(0, 255, 65, 0.15); }
+        .activity-icon.corrida { background: rgba(88, 166, 255, 0.15); }
+        .activity-icon.conquista { background: rgba(240, 136, 62, 0.15); }
+        
+        .activity-content {
+            flex: 1;
+        }
+        
+        .activity-text {
+            font-size: 0.85rem;
+            margin-bottom: 3px;
+        }
+        
+        .activity-text strong {
+            color: var(--verde-neon);
+        }
+        
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--texto-secundario);
+        }
+        
+        /* Próximas corridas */
+        .corrida-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        .corrida-item:last-child {
+            border-bottom: none;
+        }
+        
+        .corrida-data {
+            text-align: center;
+            min-width: 45px; max-width: 45px;
+        }
+        
+        .corrida-data .dia {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--verde-neon);
+        }
+        
+        .corrida-data .mes {
+            font-size: 0.7rem;
+            color: var(--texto-secundario);
+            text-transform: uppercase;
+        }
+        
+        .corrida-info {
+            flex: 1;
+        }
+        
+        .corrida-nome {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .corrida-local {
+            font-size: 0.8rem;
+            color: var(--texto-secundario);
+        }
+        
+        .corrida-inscritos {
+            font-size: 0.75rem;
+            color: var(--verde-neon);
+            margin-top: 5px;
+        }
+        
+        /* Quick actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 15px;
+            background: var(--fundo-input);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            color: var(--texto-principal);
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .quick-action-btn:hover {
+            border-color: var(--verde-neon);
+            background: var(--fundo-card);
+            color: var(--verde-neon);
+        }
+        
+        /* Loading */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--borda);
+            border-top-color: var(--verde-neon);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Menu mobile */
+        .menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            width: 45px;
+            height: 45px;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            cursor: pointer;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .menu-toggle span {
+            width: 20px;
+            height: 2px;
+            background: var(--verde-neon);
+            border-radius: 2px;
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; }
+        (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+            }
+            
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.open {
+                display: block;
+            }
+            
+            .main {
+                margin-left: 0;
+                padding: 80px 15px 15px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+                .logo-img { 
+            width: 45px !important;
+            height: 45px !important;
+            max-width: 45px !important;
+            max-height: 45px !important;
+            min-width: 45px !important;
+            min-height: 45px !important;
+            border-radius: 8px; 
+            object-fit: contain;
+            background: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.3));
+            display: block;
+        }
+    
+        /* RESPONSIVIDADE MOBILE */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--verde-neon);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+        }
+        
+        @media (max-width: 992px) {
+            .main { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; padding: 80px 15px 20px; }
+            .page-title { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar { width: 80%; }
+            .card { padding: 15px; }
+            .form-input, .form-select, .form-textarea { font-size: 16px; }
+        }
+
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<body x-data="adminDashboard()" x-init="init()">
+    <!-- Mobile menu toggle -->
+    <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen">
+        <span></span>
+        <span></span>
+        <span></span>
+    </button>
+    
+    <!-- Sidebar overlay -->
+    <div class="sidebar-overlay" :class="{ 'open': sidebarOpen }" @click="sidebarOpen = false"></div>
+    
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" :class="{ 'open': sidebarOpen }">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text">
+                        <div class="nome">TEAM GN</div>
+                        <div class="subtitulo">Saúde & Performance</div>
+                    </div>
+                </div>
+                <div class="admin-badge">Admin</div>
+            </div>
+            
+            <nav class="nav-section">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin-dashboard.html" class="nav-item active">
+                    <span class="icon">📊</span>
+                    <span>Dashboard</span>
+                </a>
+                <a href="admin-corridas.html" class="nav-item">
+                    <span class="icon">🏁</span>
+                    <span>Corridas</span>
+                </a>
+                <a href="admin-atletas.html" class="nav-item">
+                    <span class="icon">👥</span>
+                    <span>Atletas</span>
+                </a>
+                <a href="admin-planilhas.html" class="nav-item">
+                    <span class="icon">📋</span>
+                    <span>Planilhas</span>
+                </a>
+            </nav>
+            
+            <nav class="nav-section">
+                <div class="nav-section-title">Conteúdo</div>
+                <a href="admin-galeria.html" class="nav-item">
+                    <span class="icon">📸</span>
+                    <span>Galeria</span>
+                </a>
+                <a href="admin-conquistas.html" class="nav-item">
+                    <span class="icon">🏆</span>
+                    <span>Conquistas</span>
+                </a>
+                <a href="admin-pelotoes.html" class="nav-item">
+                    <span class="icon">👕</span>
+                    <span>Pelotões</span>
+                </a>
+            </nav>
+            
+            <nav class="nav-section">
+                <div class="nav-section-title">Sistema</div>
+                <a href="admin-config.html" class="nav-item">
+                    <span class="icon">⚙️</span>
+                    <span>Configurações</span>
+                </a>
+                <a href="index.html" class="nav-item">
+                    <span class="icon">🌐</span>
+                    <span>Ver Site</span>
+                </a>
+                <a href="#" class="nav-item" @click.prevent="logout">
+                    <span class="icon">🚪</span>
+                    <span>Sair</span>
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main -->
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">Dashboard</h1>
+                <div class="header-actions">
+                    <div class="user-menu">
+                        <div class="user-avatar" x-text="getInitials(usuario?.nome_completo || usuario?.email)"></div>
+                        <span class="user-name" x-text="usuario?.nome_completo || usuario?.email?.split('@')[0] || 'Admin'"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">👥</span>
+                        <span class="stat-trend up">+12%</span>
+                    </div>
+                    <div class="stat-value" x-text="stats.atletas">0</div>
+                    <div class="stat-label">Atletas Ativos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">🏁</span>
+                        <span class="stat-trend up">+5</span>
+                    </div>
+                    <div class="stat-value" x-text="stats.corridas">0</div>
+                    <div class="stat-label">Corridas Agendadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">📏</span>
+                        <span class="stat-trend up">+8%</span>
+                    </div>
+                    <div class="stat-value" x-text="formatNumber(stats.km_mes)">0</div>
+                    <div class="stat-label">KM este Mês</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-header">
+                        <span class="stat-icon">💪</span>
+                    </div>
+                    <div class="stat-value" x-text="stats.treinos_semana">0</div>
+                    <div class="stat-label">Treinos esta Semana</div>
+                </div>
+            </div>
+            
+            <!-- Content Grid -->
+            <div class="content-grid">
+                <!-- Top Atletas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🏆 Top Atletas do Mês</h2>
+                        <a href="admin-atletas.html" class="card-action">Ver todos →</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="loading" x-show="loading">
+                            <div class="spinner"></div>
+                        </div>
+                        <div x-show="!loading">
+                            <template x-for="(atleta, index) in topAtletas" :key="atleta.id">
+                                <div class="list-item">
+                                    <div class="list-avatar" x-text="getInitials(atleta.nome_completo)"></div>
+                                    <div class="list-content">
+                                        <div class="list-title" x-text="atleta.apelido || atleta.nome_completo"></div>
+                                        <div class="list-subtitle" x-text="atleta.cidade || 'Brasil'"></div>
+                                    </div>
+                                    <div class="list-value">
+                                        <div class="list-value-main" x-text="formatNumber(atleta.km_totais || 0) + ' km'"></div>
+                                        <div class="list-value-sub" x-text="(atleta.total_treinos || 0) + ' treinos'"></div>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="topAtletas.length === 0" style="text-align: center; padding: 30px; color: var(--texto-secundario);">
+                                Nenhum atleta encontrado
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Próximas Corridas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📅 Próximas Corridas</h2>
+                        <a href="admin-corridas.html" class="card-action">Gerenciar →</a>
+                    </div>
+                    <div class="card-body">
+                        <template x-for="corrida in proximasCorridas" :key="corrida.id">
+                            <div class="corrida-item">
+                                <div class="corrida-data">
+                                    <div class="dia" x-text="formatDia(corrida.data_evento)"></div>
+                                    <div class="mes" x-text="formatMes(corrida.data_evento)"></div>
+                                </div>
+                                <div class="corrida-info">
+                                    <div class="corrida-nome" x-text="corrida.nome"></div>
+                                    <div class="corrida-local" x-text="corrida.cidade + ' - ' + corrida.distancia_km + 'km'"></div>
+                                    <div class="corrida-inscritos" x-text="(corrida.total_inscritos_equipe || 0) + ' inscritos'"></div>
+                                </div>
+                            </div>
+                        </template>
+                        <div x-show="proximasCorridas.length === 0" style="text-align: center; padding: 30px; color: var(--texto-secundario);">
+                            Nenhuma corrida agendada
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <a href="admin-corridas.html?nova=1" class="quick-action-btn">
+                                ➕ Nova Corrida
+                            </a>
+                            <a href="admin-planilhas.html?nova=1" class="quick-action-btn">
+                                📋 Nova Planilha
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Atividades Recentes -->
+            <div class="card" style="margin-top: 25px;">
+                <div class="card-header">
+                    <h2 class="card-title">📢 Atividades Recentes</h2>
+                </div>
+                <div class="card-body">
+                    <template x-for="atividade in atividades" :key="atividade.id">
+                        <div class="activity-item">
+                            <div class="activity-icon" :class="atividade.tipo">
+                                <span x-text="atividade.icone"></span>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-text" x-html="atividade.texto"></div>
+                                <div class="activity-time" x-text="atividade.tempo"></div>
+                            </div>
+                        </div>
+                    </template>
+                    <div x-show="atividades.length === 0" style="text-align: center; padding: 30px; color: var(--texto-secundario);">
+                        Nenhuma atividade recente
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function adminDashboard() {
+            return {
+                loading: true,
+                sidebarOpen: false,
+                usuario: null,
+                stats: {
+                    atletas: 0,
+                    corridas: 0,
+                    km_mes: 0,
+                    treinos_semana: 0
+                },
+                topAtletas: [],
+                proximasCorridas: [],
+                atividades: [],
+                
+                async init() {
+                    // Verificar autenticação
+                    const { data: { session } } = await supabase.auth.getSession();
+                    
+                    if (!session) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    // Buscar dados do usuário
+                    const { data: perfil } = await supabase
+                        .from('perfis')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+                    
+                    if (perfil?.papel !== 'admin') {
+                        window.location.href = 'painel-atleta.html';
+                        return;
+                    }
+                    
+                    this.usuario = perfil;
+                    
+                    // Carregar dados
+                    await this.carregarStats();
+                    await this.carregarTopAtletas();
+                    await this.carregarProximasCorridas();
+                    await this.carregarAtividades();
+                    
+                    this.loading = false;
+                },
+                
+                async carregarStats() {
+                    // Atletas ativos
+                    const { count: atletas } = await supabase
+                        .from('perfis')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('ativo', true);
+                    
+                    this.stats.atletas = atletas || 0;
+                    
+                    // Corridas agendadas
+                    const hoje = new Date().toISOString().split('T')[0];
+                    const { count: corridas } = await supabase
+                        .from('corridas')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('data_evento', hoje)
+                        .eq('status', 'agendada');
+                    
+                    this.stats.corridas = corridas || 0;
+                    
+                    // KM do mês
+                    const inicioMes = new Date();
+                    inicioMes.setDate(1);
+                    const { data: treinos } = await supabase
+                        .from('treinos')
+                        .select('distancia_km')
+                        .gte('data_treino', inicioMes.toISOString().split('T')[0]);
+                    
+                    if (treinos) {
+                        this.stats.km_mes = treinos.reduce((acc, t) => acc + (parseFloat(t.distancia_km) || 0), 0);
+                    }
+                    
+                    // Treinos da semana
+                    const inicioSemana = new Date();
+                    inicioSemana.setDate(inicioSemana.getDate() - 7);
+                    const { count: treinosSemana } = await supabase
+                        .from('treinos')
+                        .select('*', { count: 'exact', head: true })
+                        .gte('data_treino', inicioSemana.toISOString().split('T')[0]);
+                    
+                    this.stats.treinos_semana = treinosSemana || 0;
+                },
+                
+                async carregarTopAtletas() {
+                    const { data } = await supabase
+                        .from('vw_ranking_atletas')
+                        .select('*')
+                        .order('km_totais', { ascending: false })
+                        .limit(5);
+                    
+                    this.topAtletas = data || [];
+                },
+                
+                async carregarProximasCorridas() {
+                    const hoje = new Date().toISOString().split('T')[0];
+                    const { data } = await supabase
+                        .from('vw_proximas_corridas')
+                        .select('*')
+                        .gte('data_evento', hoje)
+                        .order('data_evento', { ascending: true })
+                        .limit(4);
+                    
+                    this.proximasCorridas = data || [];
+                },
+                
+                async carregarAtividades() {
+                    // Buscar últimos treinos registrados
+                    const { data: treinos } = await supabase
+                        .from('treinos')
+                        .select('*, perfis(nome_completo, apelido)')
+                        .order('data_registro', { ascending: false })
+                        .limit(5);
+                    
+                    if (treinos) {
+                        this.atividades = treinos.map(t => ({
+                            id: t.id,
+                            tipo: 'treino',
+                            icone: '🏃',
+                            texto: `<strong>${t.perfis?.apelido || t.perfis?.nome_completo}</strong> registrou um treino de ${t.distancia_km || 0}km`,
+                            tempo: this.formatarTempo(t.data_registro)
+                        }));
+                    }
+                },
+                
+                formatarTempo(data) {
+                    const agora = new Date();
+                    const dataAtividade = new Date(data);
+                    const diff = Math.floor((agora - dataAtividade) / 1000 / 60);
+                    
+                    if (diff < 60) return `${diff} min atrás`;
+                    if (diff < 1440) return `${Math.floor(diff / 60)}h atrás`;
+                    return `${Math.floor(diff / 1440)} dias atrás`;
+                },
+                
+                formatNumber(num) {
+                    if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
+                    return Math.round(num).toString();
+                },
+                
+                formatDia(data) {
+                    return new Date(data + 'T00:00:00').getDate();
+                },
+                
+                formatMes(data) {
+                    const meses = ['JAN', 'FEV', 'MAR', 'ABR', 'MAI', 'JUN', 'JUL', 'AGO', 'SET', 'OUT', 'NOV', 'DEZ'];
+                    return meses[new Date(data + 'T00:00:00').getMonth()];
+                },
+                
+                getInitials(nome) {
+                    if (!nome) return '?';
+                    const parts = nome.split(' ');
+                    if (parts.length >= 2) {
+                        return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+                    }
+                    return nome.substring(0, 2).toUpperCase();
+                },
+                
+                async logout() {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Erro ao fazer logout:', error);
+                            alert('Erro ao sair: ' + error.message);
+                        } else {
+                            // Limpar localStorage
+                            localStorage.removeItem('selectedRole');
+                            // Redirecionar para login
+                            window.location.href = 'login.html';
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        alert('Erro ao sair. Tente novamente.');
+                    }
+                }
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Corridas - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --sucesso: #3FB950; --erro: #F85149; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); font-family: 'Montserrat'; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .nav-section { padding: 0 15px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { margin-bottom: 30px; }
+        .page-title { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 25px; border-bottom: 1px solid var(--borda); padding-bottom: 15px; }
+        .tab { padding: 10px 20px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .tab:hover { border-color: var(--verde-neon); }
+        .tab.active { background: var(--verde-neon); color: var(--fundo-principal); border-color: var(--verde-neon); }
+        
+        .corridas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+        .corrida-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; transition: all 0.3s; }
+        .corrida-card:hover { border-color: var(--verde-neon); transform: translateY(-3px); }
+        .corrida-banner { height: 120px; background: linear-gradient(135deg, var(--verde-primario), var(--fundo-principal)); display: flex; align-items: center; justify-content: center; font-size: 3rem; }
+        .corrida-content { padding: 20px; }
+        .corrida-data { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .corrida-data-dia { font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; color: var(--verde-neon); }
+        .corrida-data-mes { font-size: 0.8rem; color: var(--texto-secundario); text-transform: uppercase; }
+        .corrida-nome { font-family: 'Montserrat'; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .corrida-local { font-size: 0.85rem; color: var(--texto-secundario); margin-bottom: 12px; }
+        .corrida-info { display: flex; gap: 15px; margin-bottom: 15px; }
+        .corrida-info-item { font-size: 0.85rem; color: var(--texto-secundario); }
+        .corrida-info-item span { color: var(--verde-neon); font-weight: 600; }
+        .corrida-footer { display: flex; gap: 10px; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; flex: 1; text-align: center; text-decoration: none; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn-secondary { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        .btn-success { background: var(--sucesso); color: white; }
+        .btn:hover { opacity: 0.9; }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; }
+        .badge-inscrito { background: rgba(63, 185, 80, 0.15); color: var(--sucesso); }
+        .badge-concluida { background: rgba(0, 255, 65, 0.15); color: var(--verde-neon); }
+        
+        .inscricao-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; }
+        .inscricao-data { text-align: center; min-width: 60px; }
+        .inscricao-data .dia { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 900; color: var(--verde-neon); }
+        .inscricao-data .mes { font-size: 0.7rem; color: var(--texto-secundario); }
+        .inscricao-info { flex: 1; }
+        .inscricao-nome { font-weight: 700; margin-bottom: 5px; }
+        .inscricao-local { font-size: 0.85rem; color: var(--texto-secundario); }
+        .inscricao-resultado { text-align: right; }
+        .inscricao-tempo { font-family: 'Montserrat'; font-size: 1.2rem; font-weight: 700; color: var(--verde-neon); }
+        .inscricao-pace { font-size: 0.8rem; color: var(--texto-secundario); }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        .empty-state { text-align: center; padding: 60px; color: var(--texto-secundario); }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; } .main { margin-left: 0; } .corridas-grid { grid-template-columns: 1fr; } }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    </style>
+</head>
+<body x-data="minhasCorridas()" x-init="init()">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <a href="painel-atleta.html" class="nav-item"><span>🏠</span> Meu Painel</a>
+                <a href="meus-treinos.html" class="nav-item"><span>💪</span> Meus Treinos</a>
+                <a href="minha-planilha.html" class="nav-item"><span>📋</span> Minha Planilha</a>
+                <a href="minhas-corridas.html" class="nav-item active"><span>🏁</span> Minhas Corridas</a>
+                <a href="meu-perfil.html" class="nav-item"><span>👤</span> Meu Perfil</a>
+            </nav>
+        </aside>
+        
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">🏁 Minhas Corridas</h1>
+            </div>
+            
+            <div class="alert alert-success" x-show="sucesso" x-text="sucesso" x-transition></div>
+            
+            <div class="tabs">
+                <div class="tab" :class="{ 'active': tab === 'disponiveis' }" @click="tab = 'disponiveis'">📅 Próximas Corridas</div>
+                <div class="tab" :class="{ 'active': tab === 'inscricoes' }" @click="tab = 'inscricoes'">✅ Minhas Inscrições (<span x-text="inscricoes.length"></span>)</div>
+                <div class="tab" :class="{ 'active': tab === 'historico' }" @click="tab = 'historico'">🏆 Histórico</div>
+            </div>
+            
+            <!-- Próximas Corridas -->
+            <div x-show="tab === 'disponiveis'">
+                <div class="corridas-grid">
+                    <template x-for="corrida in corridasDisponiveis" :key="corrida.id">
+                        <div class="corrida-card">
+                            <div class="corrida-banner">🏃</div>
+                            <div class="corrida-content">
+                                <div class="corrida-data">
+                                    <div class="corrida-data-dia" x-text="getDia(corrida.data_evento)"></div>
+                                    <div>
+                                        <div class="corrida-data-mes" x-text="getMes(corrida.data_evento)"></div>
+                                        <div class="corrida-data-mes" x-text="getAno(corrida.data_evento)"></div>
+                                    </div>
+                                    <span class="badge badge-inscrito" x-show="estaInscrito(corrida.id)">✓ Inscrito</span>
+                                </div>
+                                <div class="corrida-nome" x-text="corrida.nome"></div>
+                                <div class="corrida-local">📍 <span x-text="corrida.cidade + ' - ' + corrida.estado"></span></div>
+                                <div class="corrida-info">
+                                    <div class="corrida-info-item">📏 <span x-text="corrida.distancia_km + ' km'"></span></div>
+                                    <div class="corrida-info-item" x-show="corrida.valor_inscricao">💰 <span x-text="'R$ ' + corrida.valor_inscricao"></span></div>
+                                </div>
+                                <div class="corrida-footer">
+                                    <button class="btn btn-primary" @click="inscrever(corrida)" x-show="!estaInscrito(corrida.id)">Quero participar!</button>
+                                    <button class="btn btn-success" x-show="estaInscrito(corrida.id)" disabled>✓ Inscrito</button>
+                                    <a :href="corrida.link_inscricao" target="_blank" class="btn btn-secondary" x-show="corrida.link_inscricao">🔗 Site oficial</a>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+                <div class="empty-state" x-show="corridasDisponiveis.length === 0">
+                    <h3>Nenhuma corrida disponível no momento</h3>
+                </div>
+            </div>
+            
+            <!-- Minhas Inscrições -->
+            <div x-show="tab === 'inscricoes'">
+                <template x-for="insc in inscricoes" :key="insc.id">
+                    <div class="inscricao-card">
+                        <div class="inscricao-data">
+                            <div class="dia" x-text="getDia(insc.corridas?.data_evento)"></div>
+                            <div class="mes" x-text="getMes(insc.corridas?.data_evento)"></div>
+                        </div>
+                        <div class="inscricao-info">
+                            <div class="inscricao-nome" x-text="insc.corridas?.nome"></div>
+                            <div class="inscricao-local" x-text="insc.corridas?.cidade + ' - ' + insc.corridas?.distancia_km + ' km'"></div>
+                        </div>
+                        <button class="btn btn-secondary" @click="cancelarInscricao(insc)" style="flex:0;">Cancelar</button>
+                    </div>
+                </template>
+                <div class="empty-state" x-show="inscricoes.length === 0">
+                    <h3>Você ainda não se inscreveu em nenhuma corrida</h3>
+                </div>
+            </div>
+            
+            <!-- Histórico -->
+            <div x-show="tab === 'historico'">
+                <template x-for="hist in historico" :key="hist.id">
+                    <div class="inscricao-card">
+                        <div class="inscricao-data">
+                            <div class="dia" x-text="getDia(hist.corridas?.data_evento)"></div>
+                            <div class="mes" x-text="getMes(hist.corridas?.data_evento)"></div>
+                        </div>
+                        <div class="inscricao-info">
+                            <div class="inscricao-nome" x-text="hist.corridas?.nome"></div>
+                            <div class="inscricao-local" x-text="hist.corridas?.cidade + ' - ' + hist.corridas?.distancia_km + ' km'"></div>
+                        </div>
+                        <div class="inscricao-resultado" x-show="hist.tempo_oficial">
+                            <div class="inscricao-tempo" x-text="hist.tempo_oficial"></div>
+                            <div class="inscricao-pace" x-text="hist.pace_medio ? hist.pace_medio + '/km' : ''"></div>
+                        </div>
+                        <span class="badge badge-concluida">✓ Concluída</span>
+                    </div>
+                </template>
+                <div class="empty-state" x-show="historico.length === 0">
+                    <h3>Nenhuma corrida concluída ainda</h3>
+                    <p>Suas corridas finalizadas aparecerão aqui!</p>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function minhasCorridas() {
+            return {
+                usuario: null, tab: 'disponiveis', corridasDisponiveis: [], inscricoes: [], historico: [], sucesso: '',
+                meses: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'],
+                
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    this.usuario = { id: session.user.id };
+                    await this.carregar();
+                },
+                
+                async carregar() {
+                    const hoje = new Date().toISOString().split('T')[0];
+                    
+                    // Corridas futuras
+                    const { data: corridas } = await supabase.from('corridas').select('*').gte('data_evento', hoje).eq('status', 'agendada').order('data_evento');
+                    this.corridasDisponiveis = corridas || [];
+                    
+                    // Minhas inscrições futuras
+                    const { data: insc } = await supabase.from('inscricoes').select('*, corridas(*)').eq('usuario_id', this.usuario.id).gte('corridas.data_evento', hoje);
+                    this.inscricoes = (insc || []).filter(i => i.corridas);
+                    
+                    // Histórico (passadas)
+                    const { data: hist } = await supabase.from('inscricoes').select('*, corridas(*)').eq('usuario_id', this.usuario.id).lt('corridas.data_evento', hoje);
+                    this.historico = (hist || []).filter(h => h.corridas);
+                },
+                
+                estaInscrito(corridaId) {
+                    return this.inscricoes.some(i => i.corrida_id === corridaId);
+                },
+                
+                async inscrever(corrida) {
+                    const { error } = await supabase.from('inscricoes').insert({ usuario_id: this.usuario.id, corrida_id: corrida.id, status: 'confirmada' });
+                    if (!error) {
+                        this.sucesso = 'Inscrição realizada!';
+                        await this.carregar();
+                        setTimeout(() => this.sucesso = '', 3000);
+                    }
+                },
+                
+                async cancelarInscricao(insc) {
+                    if (!confirm('Cancelar inscrição?')) return;
+                    await supabase.from('inscricoes').delete().eq('id', insc.id);
+                    this.sucesso = 'Inscrição cancelada';
+                    await this.carregar();
+                    setTimeout(() => this.sucesso = '', 3000);
+                },
+                
+                getDia(d) { return d ? new Date(d + 'T00:00:00').getDate() : ''; },
+                getMes(d) { return d ? this.meses[new Date(d + 'T00:00:00').getMonth()] : ''; },
+                getAno(d) { return d ? new Date(d + 'T00:00:00').getFullYear() : ''; }
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>

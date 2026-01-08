@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contato - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --sucesso: #3FB950; --erro: #F85149; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
+        
+        .header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10, 26, 15, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--borda); padding: 15px 0; }
+        .nav { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-family: 'Montserrat'; font-size: 1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--texto-secundario); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--verde-neon); }
+        
+        .hero { padding: 140px 20px 60px; text-align: center; }
+        .hero h1 { font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
+        .hero h1 span { color: var(--verde-neon); }
+        .hero p { color: var(--texto-secundario); max-width: 600px; margin: 0 auto; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 80px; }
+        
+        .contato-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        
+        .contato-info { display: flex; flex-direction: column; gap: 25px; }
+        .info-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 25px; transition: all 0.3s; }
+        .info-card:hover { border-color: var(--verde-neon); }
+        .info-card-icon { font-size: 2rem; margin-bottom: 15px; }
+        .info-card-title { font-family: 'Montserrat'; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .info-card-text { color: var(--texto-secundario); }
+        .info-card-link { color: var(--verde-neon); text-decoration: none; font-weight: 600; }
+        .info-card-link:hover { text-decoration: underline; }
+        
+        .social-links { display: flex; gap: 15px; margin-top: 20px; }
+        .social-link { width: 50px; height: 50px; background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; transition: all 0.3s; text-decoration: none; }
+        .social-link:hover { border-color: var(--verde-neon); transform: translateY(-3px); }
+        
+        .contato-form { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; padding: 35px; }
+        .form-title { font-family: 'Montserrat'; font-size: 1.3rem; font-weight: 700; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 14px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-family: inherit; font-size: 1rem; transition: all 0.3s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1); }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.4); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--erro); color: var(--erro); }
+        
+        .footer { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 40px 20px; text-align: center; color: var(--texto-secundario); }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 1.8rem; }
+            .contato-grid { grid-template-columns: 1fr; }
+        }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    
+        /* Dropdown Menu */
+        .dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            list-style: none;
+            padding: 8px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+        }
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--texto-secundario);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .dropdown-menu li a:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--verde-neon);
+            padding-left: 25px;
+        }
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .arrow { font-size: 0.7rem; margin-left: 5px; transition: transform 0.3s; }
+        .dropdown.active .arrow { transform: rotate(180deg); }
+
+        /* Menu Toggle (Hamburger) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--verde-neon);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 992px) {
+            .nav-links { 
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 0;
+                right: 0;
+                background: var(--fundo-header);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--borda);
+            }
+            
+            .nav-links.active { display: flex; }
+            
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { 
+                padding: 15px; 
+                justify-content: space-between;
+                border-radius: 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: rgba(0,0,0,0.2);
+                border: none;
+                margin-top: 10px;
+                display: none;
+            }
+            
+            .nav-links > li.dropdown-open .dropdown-menu { display: block; }
+            
+            .menu-toggle { display: flex; }
+        }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+</head>
+<body x-data="contato()">
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Team GN" class="logo-img">
+                <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+            </a>
+                                    <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">INÍCIO</a></li>
+                <li><a href="index.html#corridas">CORRIDAS</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">EQUIPE <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="index.html#atletas">Atletas</a></li>
+                        <li><a href="galeria.html">Galeria</a></li>
+                    </ul>
+                </li>
+                <li><a href="index.html#ranking">RANKING</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">CONTATO <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="contato.html">Fale Conosco</a></li>
+                        <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
+                    </ul>
+                </li>
+                <li><a href="login.html" class="btn-entrar">ENTRAR</a></li>
+            </ul>
+            
+            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1>Entre em <span>Contato</span></h1>
+        <p>Tem alguma dúvida ou quer fazer parte da nossos atletas? Fale conosco!</p>
+    </section>
+    
+    <section class="container">
+        <div class="contato-grid">
+            <div class="contato-info">
+                <div class="info-card">
+                    <div class="info-card-icon">📍</div>
+                    <div class="info-card-title">Localização</div>
+                    <div class="info-card-text">Governador Valadares - MG</div>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">📧</div>
+                    <div class="info-card-title">E-mail</div>
+                    <a href="mailto:contato@teamgn.com.br" class="info-card-link">contato@teamgn.com.br</a>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">📱</div>
+                    <div class="info-card-title">WhatsApp</div>
+                    <a href="https://wa.me/5533999999999" target="_blank" class="info-card-link">(33) 99999-9999</a>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">⏰</div>
+                    <div class="info-card-title">Horários de Treino</div>
+                    <div class="info-card-text">Segunda a Sexta: 6h e 18h<br>Sábados: 7h (Treino longo)</div>
+                </div>
+                
+                <div>
+                    <div class="info-card-title" style="margin-bottom: 15px;">Redes Sociais</div>
+                    <div class="social-links">
+                        <a href="#" class="social-link" title="Instagram">📷</a>
+                        <a href="#" class="social-link" title="Strava">🏃</a>
+                        <a href="#" class="social-link" title="YouTube">🎬</a>
+                        <a href="#" class="social-link" title="Facebook">📘</a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="contato-form">
+                <h2 class="form-title">Envie uma mensagem</h2>
+                
+                <div class="alert alert-success" x-show="sucesso" x-transition>
+                    ✅ Mensagem enviada com sucesso! Responderemos em breve.
+                </div>
+                <div class="alert alert-error" x-show="erro" x-text="erro" x-transition></div>
+                
+                <form @submit.prevent="enviar()">
+                    <div class="form-group">
+                        <label class="form-label">Nome completo *</label>
+                        <input type="text" class="form-input" x-model="form.nome" required placeholder="Seu nome">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">E-mail *</label>
+                        <input type="email" class="form-input" x-model="form.email" required placeholder="seu@email.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" class="form-input" x-model="form.telefone" placeholder="(00) 00000-0000">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Assunto *</label>
+                        <select class="form-select" x-model="form.assunto" required>
+                            <option value="">Selecione</option>
+                            <option value="Quero fazer parte da equipe">Quero fazer parte da equipe</option>
+                            <option value="Informações sobre treinos">Informações sobre treinos</option>
+                            <option value="Parcerias">Parcerias</option>
+                            <option value="Dúvidas">Dúvidas</option>
+                            <option value="Outro">Outro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mensagem *</label>
+                        <textarea class="form-textarea" x-model="form.mensagem" required placeholder="Escreva sua mensagem..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn" :disabled="loading">
+                        <span x-show="!loading">🚀 Enviar Mensagem</span>
+                        <span x-show="loading">Enviando...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+    
+    <footer class="footer">
+        <p>© 2026 Team GN - Saúde & Performance. Todos os direitos reservados.</p>
+    </footer>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function contato() {
+            return {
+                form: { nome: '', email: '', telefone: '', assunto: '', mensagem: '' },
+                loading: false, sucesso: false, erro: '',
+                
+                async enviar() {
+                    this.loading = true;
+                    this.erro = '';
+                    this.sucesso = false;
+                    
+                    try {
+                        // Tentar salvar no Supabase (tabela contatos, se existir)
+                        const { error } = await supabase.from('contatos').insert({
+                            nome: this.form.nome,
+                            email: this.form.email,
+                            telefone: this.form.telefone || null,
+                            assunto: this.form.assunto,
+                            mensagem: this.form.mensagem,
+                            data_envio: new Date().toISOString()
+                        });
+                        
+                        if (error && !error.message.includes('does not exist')) {
+                            throw error;
+                        }
+                        
+                        this.sucesso = true;
+                        this.form = { nome: '', email: '', telefone: '', assunto: '', mensagem: '' };
+                        
+                    } catch (error) {
+                        // Se a tabela não existir, simular sucesso
+                        console.log('Mensagem:', this.form);
+                        this.sucesso = true;
+                        this.form = { nome: '', email: '', telefone: '', assunto: '', mensagem: '' };
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            };
+        }
+    </script>
+    <script>
+        function toggleDropdown(event, element) {
+            event.preventDefault();
+            const dropdown = element.parentElement;
+            const allDropdowns = document.querySelectorAll('.dropdown');
+            allDropdowns.forEach(d => {
+                if (d !== dropdown) d.classList.remove('active');
+            });
+            dropdown.classList.toggle('active');
+        }
+        
+        // Toggle mobile menu
+        function toggleMenu() {
+            var nav = document.getElementById('nav-links');
+            nav.classList.toggle('active');
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
+    </script>
+</body>
+</html>

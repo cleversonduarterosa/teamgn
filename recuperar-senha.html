@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Senha - Team GN</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --verde-neon: #00FF41;
+            --verde-primario: #2E7D32;
+            --fundo-principal: #0A1A0F;
+            --fundo-card: #0D2818;
+            --fundo-input: #122E1C;
+            --texto-principal: #E6EDF3;
+            --texto-secundario: #8B949E;
+            --borda: #1E4D2B;
+            --erro: #F85149;
+            --sucesso: #3FB950;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        
+        body {
+            font-family: 'Open Sans', sans-serif;
+            background-color: var(--fundo-principal);
+            color: var(--texto-principal);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse at 30% 20%, rgba(0, 255, 65, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(46, 125, 50, 0.05) 0%, transparent 40%);
+            pointer-events: none;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .logo svg {
+            width: 60px;
+            height: 60px;
+            filter: drop-shadow(0 0 20px rgba(0, 255, 65, 0.5));
+        }
+        
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            text-align: left;
+        }
+        
+        .logo-text .nome {
+            font-size: 1.1rem;
+            font-weight: 900;
+            color: var(--verde-neon);
+            letter-spacing: 2px;
+        }
+        
+        .logo-text .subtitulo {
+            font-size: 0.65rem;
+            color: var(--texto-secundario);
+            letter-spacing: 1px;
+        }
+        
+        .icon-lock {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: var(--texto-secundario);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--texto-secundario);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--fundo-input);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            color: var(--texto-principal);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--verde-neon);
+            box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: var(--verde-neon);
+            color: var(--fundo-principal);
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.3);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 50px rgba(0, 255, 65, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px solid var(--borda);
+        }
+        
+        .footer a {
+            color: var(--verde-neon);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .alert.show { display: block; }
+        
+        .alert-error {
+            background: rgba(248, 81, 73, 0.1);
+            border: 1px solid var(--erro);
+            color: var(--erro);
+        }
+        
+        .alert-success {
+            background: rgba(63, 185, 80, 0.1);
+            border: 1px solid var(--sucesso);
+            color: var(--sucesso);
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--fundo-principal);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--texto-secundario);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+        
+        .back-link:hover {
+            color: var(--verde-neon);
+        }
+        
+        .success-screen {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+        
+        .success-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--verde-neon);
+        }
+        
+        .success-text {
+            color: var(--texto-secundario);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    </style>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+</head>
+<body x-data="recuperarApp()">
+    <div class="container">
+        <a href="login.html" class="back-link">
+            ← Voltar ao login
+        </a>
+        
+        <div class="card">
+            <!-- Tela de sucesso -->
+            <div class="success-screen" x-show="enviado" x-cloak>
+                <div class="success-icon">📧</div>
+                <h2 class="success-title">E-mail enviado!</h2>
+                <p class="success-text">
+                    Se existe uma conta com o e-mail <strong x-text="email"></strong>, você receberá um link para redefinir sua senha.<br><br>
+                    Verifique sua caixa de entrada e spam.
+                </p>
+                <a href="login.html" class="btn btn-primary">Voltar ao Login</a>
+            </div>
+            
+            <!-- Formulário -->
+            <div x-show="!enviado">
+                <div class="header">
+                    <div class="logo">
+                        <img src="logo.png" alt="Team GN" class="logo-img">
+                        <div class="logo-text">
+                            <div class="nome">TEAM GN</div>
+                            <div class="subtitulo">Saúde & Performance</div>
+                        </div>
+                    </div>
+                    <div class="icon-lock">🔒</div>
+                    <h1 class="title">Esqueceu a senha?</h1>
+                    <p class="subtitle">
+                        Sem problemas! Digite seu e-mail e enviaremos um link para você criar uma nova senha.
+                    </p>
+                </div>
+                
+                <!-- Alertas -->
+                <div class="alert alert-error" :class="{ 'show': erro }" x-text="erro"></div>
+                
+                <form @submit.prevent="enviarEmail">
+                    <div class="form-group">
+                        <label class="form-label">E-mail</label>
+                        <input 
+                            type="email" 
+                            class="form-input" 
+                            placeholder="seu@email.com"
+                            x-model="email"
+                            required
+                        >
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" :disabled="loading">
+                        <span class="spinner" x-show="loading"></span>
+                        <span x-text="loading ? 'Enviando...' : 'Enviar Link'"></span>
+                    </button>
+                </form>
+                
+                <div class="footer">
+                    <p>Lembrou a senha? <a href="login.html">Entrar</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function recuperarApp() {
+            return {
+                email: '',
+                loading: false,
+                erro: '',
+                enviado: false,
+                
+                async enviarEmail() {
+                    this.erro = '';
+                    this.loading = true;
+                    
+                    try {
+                        const { error } = await supabase.auth.resetPasswordForEmail(this.email, {
+                            redirectTo: window.location.origin + '/redefinir-senha.html'
+                        });
+                        
+                        if (error) throw error;
+                        
+                        this.enviado = true;
+                        
+                    } catch (error) {
+                        console.error('Erro:', error);
+                        this.erro = error.message || 'Erro ao enviar e-mail';
+                    } finally {
+                        this.loading = false;
+                    }
+                }
+            };
+        }
+    </script>
+</body>
+</html>

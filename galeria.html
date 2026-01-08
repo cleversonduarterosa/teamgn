@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galeria - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
+        
+        .header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10, 26, 15, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--borda); padding: 15px 0; }
+        .nav { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-family: 'Montserrat'; font-size: 1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--texto-secundario); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--verde-neon); }
+        
+        .hero { padding: 140px 20px 60px; text-align: center; }
+        .hero h1 { font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
+        .hero h1 span { color: var(--verde-neon); }
+        .hero p { color: var(--texto-secundario); max-width: 600px; margin: 0 auto; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .filtros { display: flex; justify-content: center; gap: 15px; margin-bottom: 40px; flex-wrap: wrap; }
+        .filtro-btn { padding: 10px 25px; background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 30px; color: var(--texto-secundario); font-weight: 600; cursor: pointer; transition: all 0.3s; }
+        .filtro-btn:hover, .filtro-btn.active { background: var(--verde-neon); color: var(--fundo-principal); border-color: var(--verde-neon); }
+        
+        .galeria-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; padding-bottom: 60px; }
+        .galeria-item { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 4/3; background: var(--fundo-card); border: 1px solid var(--borda); cursor: pointer; transition: all 0.3s; }
+        .galeria-item:hover { transform: scale(1.02); border-color: var(--verde-neon); box-shadow: 0 10px 40px rgba(0, 255, 65, 0.2); }
+        .galeria-item img { width: 100%; height: 100%; object-fit: cover; }
+        .galeria-item .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 4rem; background: linear-gradient(135deg, var(--fundo-card) 0%, var(--verde-primario) 100%); }
+        .galeria-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 20px; background: linear-gradient(transparent, rgba(0,0,0,0.8)); }
+        .galeria-titulo { font-family: 'Montserrat'; font-weight: 700; margin-bottom: 5px; }
+        .galeria-data { font-size: 0.8rem; color: var(--verde-neon); }
+        
+        .lightbox { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .lightbox-content { max-width: 90vw; max-height: 90vh; position: relative; }
+        .lightbox-content img { max-width: 100%; max-height: 85vh; border-radius: 8px; }
+        .lightbox-close { position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 2rem; cursor: pointer; }
+        .lightbox-info { text-align: center; margin-top: 15px; }
+        .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); background: var(--fundo-card); border: 1px solid var(--borda); width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.5rem; }
+        .lightbox-nav:hover { border-color: var(--verde-neon); }
+        .lightbox-nav.prev { left: -70px; }
+        .lightbox-nav.next { right: -70px; }
+        
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--texto-secundario); }
+        
+        .footer { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 40px 20px; text-align: center; color: var(--texto-secundario); }
+        
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 1.8rem; }
+            .lightbox-nav { display: none; }
+        }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    
+        /* Dropdown Menu */
+        .dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            list-style: none;
+            padding: 8px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+        }
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--texto-secundario);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .dropdown-menu li a:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--verde-neon);
+            padding-left: 25px;
+        }
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .arrow { font-size: 0.7rem; margin-left: 5px; transition: transform 0.3s; }
+        .dropdown.active .arrow { transform: rotate(180deg); }
+
+        /* Menu Toggle (Hamburger) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--verde-neon);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 992px) {
+            .nav-links { 
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 0;
+                right: 0;
+                background: var(--fundo-header);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--borda);
+            }
+            
+            .nav-links.active { display: flex; }
+            
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { 
+                padding: 15px; 
+                justify-content: space-between;
+                border-radius: 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: rgba(0,0,0,0.2);
+                border: none;
+                margin-top: 10px;
+                display: none;
+            }
+            
+            .nav-links > li.dropdown-open .dropdown-menu { display: block; }
+            
+            .menu-toggle { display: flex; }
+        }
+    </style>
+</head>
+<body x-data="galeria()" x-init="init()">
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Team GN" class="logo-img">
+                <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+            </a>
+                                    <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">INÍCIO</a></li>
+                <li><a href="index.html#corridas">CORRIDAS</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">EQUIPE <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="index.html#atletas">Atletas</a></li>
+                        <li><a href="galeria.html">Galeria</a></li>
+                    </ul>
+                </li>
+                <li><a href="index.html#ranking">RANKING</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">CONTATO <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="contato.html">Fale Conosco</a></li>
+                        <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
+                    </ul>
+                </li>
+                <li><a href="login.html" class="btn-entrar">ENTRAR</a></li>
+            </ul>
+            
+            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1>Nossa <span>Galeria</span></h1>
+        <p>Momentos especiais da nossos atletas em treinos e provas</p>
+    </section>
+    
+    <section class="container">
+        <div class="filtros">
+            <button class="filtro-btn" :class="{ 'active': filtro === 'todos' }" @click="filtro = 'todos'">Todos</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'treinos' }" @click="filtro = 'treinos'">Treinos</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'corridas' }" @click="filtro = 'corridas'">Corridas</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'eventos' }" @click="filtro = 'eventos'">Eventos</button>
+        </div>
+        
+        <div class="galeria-grid">
+            <template x-for="(foto, index) in fotosFiltradas" :key="foto.id">
+                <div class="galeria-item" @click="abrirLightbox(index)">
+                    <template x-if="foto.foto_url">
+                        <img :src="foto.foto_url" :alt="foto.titulo">
+                    </template>
+                    <template x-if="!foto.foto_url">
+                        <div class="placeholder">📸</div>
+                    </template>
+                    <div class="galeria-overlay">
+                        <div class="galeria-titulo" x-text="foto.titulo"></div>
+                        <div class="galeria-data" x-text="formatarData(foto.data_foto)"></div>
+                    </div>
+                </div>
+            </template>
+        </div>
+        
+        <div class="empty-state" x-show="fotosFiltradas.length === 0">
+            <h3>📸 Nenhuma foto encontrada</h3>
+            <p>Em breve teremos fotos dos nossos treinos e corridas!</p>
+        </div>
+    </section>
+    
+    <!-- Lightbox -->
+    <div class="lightbox" x-show="lightboxAberto" x-transition @click.self="lightboxAberto = false" @keydown.escape.window="lightboxAberto = false" @keydown.left.window="fotoAnterior()" @keydown.right.window="proximaFoto()">
+        <div class="lightbox-content" x-show="fotoAtual">
+            <button class="lightbox-close" @click="lightboxAberto = false">&times;</button>
+            <button class="lightbox-nav prev" @click="fotoAnterior()">◀</button>
+            <button class="lightbox-nav next" @click="proximaFoto()">▶</button>
+            <template x-if="fotoAtual?.foto_url">
+                <img :src="fotoAtual.foto_url" :alt="fotoAtual.titulo">
+            </template>
+            <div class="lightbox-info">
+                <div class="galeria-titulo" x-text="fotoAtual?.titulo"></div>
+                <div class="galeria-data" x-text="fotoAtual?.descricao"></div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="footer">
+        <p>© 2026 Team GN - Saúde & Performance. Todos os direitos reservados.</p>
+    </footer>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function galeria() {
+            return {
+                fotos: [], filtro: 'todos', lightboxAberto: false, fotoIndex: 0,
+                
+                async init() {
+                    const { data } = await supabase.from('galeria').select('*').eq('publica', true).order('data_foto', { ascending: false });
+                    this.fotos = data || [];
+                    
+                    // Se não houver fotos, criar exemplos
+                    if (this.fotos.length === 0) {
+                        this.fotos = [
+                            { id: 1, titulo: 'Treino de domingo', categoria: 'treinos', data_foto: '2025-01-01', foto_url: null },
+                            { id: 2, titulo: 'Corrida 10K', categoria: 'corridas', data_foto: '2024-12-15', foto_url: null },
+                            { id: 3, titulo: 'Confraternização', categoria: 'eventos', data_foto: '2024-12-20', foto_url: null },
+                        ];
+                    }
+                },
+                
+                get fotosFiltradas() {
+                    if (this.filtro === 'todos') return this.fotos;
+                    return this.fotos.filter(f => f.categoria === this.filtro);
+                },
+                
+                get fotoAtual() {
+                    return this.fotosFiltradas[this.fotoIndex];
+                },
+                
+                abrirLightbox(index) {
+                    this.fotoIndex = index;
+                    this.lightboxAberto = true;
+                },
+                
+                fotoAnterior() {
+                    this.fotoIndex = this.fotoIndex > 0 ? this.fotoIndex - 1 : this.fotosFiltradas.length - 1;
+                },
+                
+                proximaFoto() {
+                    this.fotoIndex = this.fotoIndex < this.fotosFiltradas.length - 1 ? this.fotoIndex + 1 : 0;
+                },
+                
+                formatarData(data) {
+                    if (!data) return '';
+                    return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                }
+            };
+        }
+    </script>
+        <script>
+        function toggleDropdown(event, element) {
+            event.preventDefault();
+            const dropdown = element.parentElement;
+            const allDropdowns = document.querySelectorAll('.dropdown');
+            allDropdowns.forEach(d => {
+                if (d !== dropdown) d.classList.remove('active');
+            });
+            dropdown.classList.toggle('active');
+        }
+        
+        // Toggle mobile menu
+        function toggleMenu() {
+            var nav = document.getElementById('nav-links');
+            nav.classList.toggle('active');
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+</body>
+</html>

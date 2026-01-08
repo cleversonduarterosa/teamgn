@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
+        
+        .header { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(10, 26, 15, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--borda); padding: 15px 0; }
+        .nav { max-width: 1200px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-family: 'Montserrat'; font-size: 1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .nav-links { display: flex; gap: 30px; list-style: none; }
+        .nav-links a { color: var(--texto-secundario); text-decoration: none; font-weight: 600; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--verde-neon); }
+        
+        .hero { padding: 150px 20px 80px; text-align: center; }
+        .hero h1 { font-family: 'Montserrat'; font-size: 3rem; font-weight: 900; margin-bottom: 20px; }
+        .hero h1 span { color: var(--verde-neon); }
+        .hero p { max-width: 600px; margin: 0 auto; color: var(--texto-secundario); font-size: 1.1rem; }
+        
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+        
+        .section { padding: 80px 0; }
+        .section-title { font-family: 'Montserrat'; font-size: 2rem; font-weight: 800; text-align: center; margin-bottom: 50px; }
+        
+        .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: center; }
+        .about-image { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; height: 400px; display: flex; align-items: center; justify-content: center; font-size: 8rem; }
+        .about-text h3 { font-family: 'Montserrat'; font-size: 1.5rem; margin-bottom: 20px; color: var(--verde-neon); }
+        .about-text p { color: var(--texto-secundario); margin-bottom: 15px; }
+        
+        .values-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+        .value-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; padding: 30px; text-align: center; transition: all 0.3s; }
+        .value-card:hover { border-color: var(--verde-neon); transform: translateY(-5px); }
+        .value-icon { font-size: 3rem; margin-bottom: 20px; }
+        .value-title { font-family: 'Montserrat'; font-size: 1.2rem; font-weight: 700; margin-bottom: 10px; }
+        .value-desc { color: var(--texto-secundario); font-size: 0.9rem; }
+        
+        .cta { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 80px 20px; text-align: center; }
+        .cta h2 { font-family: 'Montserrat'; font-size: 2rem; margin-bottom: 20px; }
+        .cta p { color: var(--texto-secundario); margin-bottom: 30px; }
+        .btn { display: inline-flex; align-items: center; gap: 10px; padding: 15px 35px; background: var(--verde-neon); color: var(--fundo-principal); border-radius: 8px; text-decoration: none; font-family: 'Montserrat'; font-weight: 700; transition: all 0.3s; }
+        .btn:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.5); transform: translateY(-3px); }
+        
+        .footer { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 40px 20px; text-align: center; color: var(--texto-secundario); }
+        
+        @media (max-width: 768px) {
+            .about-content { grid-template-columns: 1fr; }
+            .values-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2rem; }
+        }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+        
+        /* Dropdown Menu */
+        .dropdown { position: relative; }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            list-style: none;
+            padding: 8px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            z-index: 1000;
+        }
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--texto-secundario);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .dropdown-menu li a:hover {
+            background: rgba(0, 255, 65, 0.1);
+            color: var(--verde-neon);
+            padding-left: 25px;
+        }
+        .dropdown.active .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        .arrow { font-size: 0.7rem; margin-left: 5px; transition: transform 0.3s; }
+        .dropdown.active .arrow { transform: rotate(180deg); }
+
+        /* Menu Toggle (Hamburger) */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--verde-neon);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* Responsivo */
+        @media (max-width: 992px) {
+            .nav-links { 
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 0;
+                right: 0;
+                background: var(--fundo-header);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--borda);
+            }
+            
+            .nav-links.active { display: flex; }
+            
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { 
+                padding: 15px; 
+                justify-content: space-between;
+                border-radius: 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: rgba(0,0,0,0.2);
+                border: none;
+                margin-top: 10px;
+                display: none;
+            }
+            
+            .nav-links > li.dropdown-open .dropdown-menu { display: block; }
+            
+            .menu-toggle { display: flex; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="index.html" class="logo">
+                <img src="logo.png" alt="Team GN" class="logo-img">
+                <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+            </a>
+                        <ul class="nav-links" id="nav-links">
+                <li><a href="index.html">INÍCIO</a></li>
+                <li><a href="index.html#corridas">CORRIDAS</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">EQUIPE <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="sobre.html">Sobre Nós</a></li>
+                        <li><a href="index.html#atletas">Atletas</a></li>
+                        <li><a href="galeria.html">Galeria</a></li>
+                    </ul>
+                </li>
+                <li><a href="index.html#ranking">RANKING</a></li>
+                <li class="dropdown">
+                    <a href="#" onclick="toggleDropdown(event, this); return false;">CONTATO <span class="arrow">▼</span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="contato.html">Fale Conosco</a></li>
+                        <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
+                    </ul>
+                </li>
+                <li><a href="login.html" class="btn-entrar">ENTRAR</a></li>
+            </ul>
+            
+            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <h1>Transformar vidas por meio do <span>esporte</span></h1>
+        <p>Conheça a história da equipe Team GN e nossa missão de promover saúde, bem-estar e superação através da corrida.</p>
+    </section>
+    
+    <section class="section">
+        <div class="container">
+            <div class="about-content">
+                <div class="about-image">🏃</div>
+                <div class="about-text">
+                    <h3>Nossa História</h3>
+                    <p>A equipe Team GN nasceu da paixão pela corrida e do desejo de compartilhar os benefícios do esporte com mais pessoas.</p>
+                    <p>Comandada pelo professor Team GN, profissional de educação física especializado em corrida de rua, a equipe oferece treinos personalizados para atletas de todos os níveis.</p>
+                    <p>Nosso objetivo é ajudar cada atleta a alcançar seu potencial máximo, seja para completar sua primeira corrida de 5km ou bater um recorde pessoal na maratona.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="section" style="background: var(--fundo-card);">
+        <div class="container">
+            <h2 class="section-title">Nossos Valores</h2>
+            <div class="values-grid">
+                <div class="value-card">
+                    <div class="value-icon">💪</div>
+                    <h3 class="value-title">Disciplina</h3>
+                    <p class="value-desc">A consistência nos treinos é o caminho para a evolução. Cada quilômetro conta.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🤝</div>
+                    <h3 class="value-title">Comunidade</h3>
+                    <p class="value-desc">Correr em equipe nos fortalece. Juntos vamos mais longe.</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-icon">🎯</div>
+                    <h3 class="value-title">Superação</h3>
+                    <p class="value-desc">Cada prova é uma oportunidade de superar nossos próprios limites.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <section class="cta">
+        <h2>Faça parte da nossos atletas!</h2>
+        <p>Junte-se a nós e comece sua jornada na corrida.</p>
+        <a href="cadastro.html" class="btn">🚀 Quero participar</a>
+    </section>
+    
+    <footer class="footer">
+        <p>© 2026 Team GN - Saúde & Performance. Todos os direitos reservados.</p>
+    </footer>
+    <script>
+        function toggleDropdown(event, element) {
+            event.preventDefault();
+            const dropdown = element.parentElement;
+            const allDropdowns = document.querySelectorAll('.dropdown');
+            allDropdowns.forEach(d => {
+                if (d !== dropdown) d.classList.remove('active');
+            });
+            dropdown.classList.toggle('active');
+        }
+        
+        // Toggle mobile menu
+        function toggleMenu() {
+            var nav = document.getElementById('nav-links');
+            nav.classList.toggle('active');
+        }
+        
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.dropdown')) {
+                document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('active'));
+            }
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+</body>
+</html>

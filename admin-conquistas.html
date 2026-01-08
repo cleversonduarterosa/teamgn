@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Conquistas - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --erro: #F85149; --sucesso: #3FB950; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+                .logo-img { 
+            width: 45px !important;
+            height: 45px !important;
+            max-width: 45px !important;
+            max-height: 45px !important;
+            min-width: 45px !important;
+            min-height: 45px !important;
+            border-radius: 8px; 
+            object-fit: contain;
+            background: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.3));
+            display: block;
+        }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat', sans-serif; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .nav-section { padding: 0 15px; margin-bottom: 15px; }
+        .nav-title { font-size: 0.7rem; color: var(--texto-secundario); text-transform: uppercase; padding: 0 15px; margin-bottom: 8px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; transition: all 0.3s; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .page-title { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 800; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(0, 255, 65, 0.4); }
+        .btn-secondary { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        .btn-danger { background: var(--erro); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+        
+        .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-input { padding: 10px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 0.9rem; min-width: 250px; }
+        .filter-input:focus { outline: none; border-color: var(--verde-neon); }
+        .filter-select { padding: 10px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); }
+        
+        .conquistas-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .conquista-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; transition: all 0.3s; }
+        .conquista-card:hover { border-color: var(--verde-neon); }
+        .conquista-header { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .conquista-icon { width: 60px; height: 60px; border-radius: 12px; background: linear-gradient(135deg, #FFD700, #FFA500); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; }
+        .conquista-icon.prata { background: linear-gradient(135deg, #C0C0C0, #A0A0A0); }
+        .conquista-icon.bronze { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+        .conquista-info h3 { font-size: 1.1rem; margin-bottom: 4px; }
+        .conquista-info p { font-size: 0.85rem; color: var(--texto-secundario); }
+        .conquista-details { font-size: 0.85rem; color: var(--texto-secundario); margin-bottom: 15px; }
+        .conquista-badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; background: rgba(0,255,65,0.2); color: var(--verde-neon); }
+        .conquista-actions { display: flex; gap: 10px; margin-top: 15px; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal-overlay.show { display: flex; }
+        .modal { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 20px; border-bottom: 1px solid var(--borda); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; }
+        .modal-close { background: none; border: none; color: var(--texto-secundario); font-size: 1.5rem; cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 20px; border-top: 1px solid var(--borda); display: flex; gap: 10px; justify-content: flex-end; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 0.95rem; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--verde-neon); }
+        .form-textarea { min-height: 80px; resize: vertical; font-family: inherit; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .alert.show { display: block; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--erro); color: var(--erro); }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--texto-secundario); }
+        .empty-state h3 { font-size: 1.2rem; margin-bottom: 10px; color: var(--texto-principal); }
+        .loading { text-align: center; padding: 40px; color: var(--texto-secundario); }
+        
+        @media (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    
+        /* RESPONSIVIDADE MOBILE */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--verde-neon);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+        }
+        
+        @media (max-width: 992px) {
+            .main { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; padding: 80px 15px 20px; }
+            .page-title { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar { width: 80%; }
+            .card { padding: 15px; }
+            .form-input, .form-select, .form-textarea { font-size: 16px; }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text">
+                        <span class="nome">TEAM GN</span><br>
+                        <span class="subtitulo">Saúde & Performance</span>
+                        <span class="version-tag">v1.09</span>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <div class="nav-title">Principal</div>
+                <a href="admin-dashboard.html" class="nav-item">📊 Dashboard</a>
+                <a href="admin-corridas.html" class="nav-item">🏁 Corridas</a>
+                <a href="admin-atletas.html" class="nav-item">👥 Atletas</a>
+                <a href="admin-planilhas.html" class="nav-item">📋 Planilhas</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Conteúdo</div>
+                <a href="admin-galeria.html" class="nav-item">📸 Galeria</a>
+                <a href="admin-conquistas.html" class="nav-item active">🏆 Conquistas</a>
+                <a href="admin-pelotoes.html" class="nav-item">👕 Pelotões</a>
+            </nav>
+            <nav class="nav-section">
+                <div class="nav-title">Sistema</div>
+                <a href="admin-config.html" class="nav-item">⚙️ Configurações</a>
+                <a href="index.html" class="nav-item">🌐 Ver Site</a>
+                <a href="#" class="nav-item" onclick="logout()">🚪 Sair</a>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">🏆 Gerenciar Conquistas</h1>
+                <button class="btn btn-primary" onclick="abrirModalNovo()">+ Nova Conquista</button>
+            </div>
+
+            <div id="alert-container"></div>
+
+            <div class="filters">
+                <input type="text" class="filter-input" placeholder="🔍 Buscar conquista..." id="filtro-busca" oninput="filtrar()">
+                <select class="filter-select" id="filtro-tipo" onchange="filtrar()">
+                    <option value="">Todos os tipos</option>
+                    <option value="ouro">Ouro</option>
+                    <option value="prata">Prata</option>
+                    <option value="bronze">Bronze</option>
+                </select>
+            </div>
+
+            <div id="loading" class="loading">Carregando conquistas...</div>
+            <div id="conquistas-container" class="conquistas-grid"></div>
+            <div id="empty-state" class="empty-state" style="display: none;">
+                <h3>Nenhuma conquista cadastrada</h3>
+                <p>Clique em "Nova Conquista" para adicionar.</p>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal-overlay" id="modal-conquista">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="modal-titulo">Nova Conquista</h2>
+                <button class="modal-close" onclick="fecharModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="form-conquista">
+                    <input type="hidden" id="conquista-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">Nome da Conquista *</label>
+                        <input type="text" class="form-input" id="conquista-nome" required placeholder="Ex: Maratonista de Elite">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-textarea" id="conquista-descricao" placeholder="Descrição da conquista..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" id="conquista-tipo">
+                                <option value="ouro">🥇 Ouro</option>
+                                <option value="prata">🥈 Prata</option>
+                                <option value="bronze">🥉 Bronze</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Ícone (emoji)</label>
+                            <input type="text" class="form-input" id="conquista-icone" placeholder="🏆" maxlength="2">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Critério</label>
+                            <input type="text" class="form-input" id="conquista-criterio" placeholder="Ex: Completar 10 corridas">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Pontos</label>
+                            <input type="number" class="form-input" id="conquista-pontos" value="100" min="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btn-salvar" onclick="salvar()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        var SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        
+        var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        var conquistas = [];
+        var editandoId = null;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            verificarAuth();
+            carregarConquistas();
+        });
+        
+        async function verificarAuth() {
+            var { data: { session } } = await db.auth.getSession();
+            if (!session) window.location.href = 'login.html';
+        }
+        
+        async function carregarConquistas() {
+            document.getElementById('loading').style.display = 'block';
+            
+            try {
+                var { data, error } = await db.from('conquistas').select('*').order('pontos', { ascending: false });
+                if (error) throw error;
+                conquistas = data || [];
+                renderizar(conquistas);
+            } catch (erro) {
+                console.error(erro);
+                mostrarAlerta('Erro ao carregar: ' + erro.message, 'error');
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+        
+        function renderizar(lista) {
+            var container = document.getElementById('conquistas-container');
+            var emptyState = document.getElementById('empty-state');
+            
+            if (lista.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            emptyState.style.display = 'none';
+            
+            var html = lista.map(function(c) {
+                var iconClass = c.tipo === 'prata' ? 'prata' : (c.tipo === 'bronze' ? 'bronze' : '');
+                return '<div class="conquista-card">' +
+                    '<div class="conquista-header">' +
+                        '<div class="conquista-icon ' + iconClass + '">' + (c.icone || '🏆') + '</div>' +
+                        '<div class="conquista-info">' +
+                            '<h3>' + (c.nome || 'Sem nome') + '</h3>' +
+                            '<p>' + (c.criterio || '-') + '</p>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="conquista-details">' + (c.descricao || 'Sem descrição') + '</div>' +
+                    '<span class="conquista-badge">' + (c.pontos || 0) + ' pontos</span>' +
+                    '<div class="conquista-actions">' +
+                        '<button class="btn btn-secondary btn-sm" onclick="editar(\'' + c.id + '\')">✏️ Editar</button>' +
+                        '<button class="btn btn-danger btn-sm" onclick="excluir(\'' + c.id + '\')">🗑️</button>' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+        
+        function filtrar() {
+            var busca = document.getElementById('filtro-busca').value.toLowerCase();
+            var tipo = document.getElementById('filtro-tipo').value;
+            
+            var filtrados = conquistas.filter(function(c) {
+                var matchBusca = !busca || (c.nome || '').toLowerCase().includes(busca);
+                var matchTipo = !tipo || c.tipo === tipo;
+                return matchBusca && matchTipo;
+            });
+            
+            renderizar(filtrados);
+        }
+        
+        function abrirModalNovo() {
+            editandoId = null;
+            document.getElementById('modal-titulo').textContent = 'Nova Conquista';
+            document.getElementById('form-conquista').reset();
+            document.getElementById('conquista-pontos').value = 100;
+            document.getElementById('modal-conquista').classList.add('show');
+        }
+        
+        function editar(id) {
+            var item = conquistas.find(function(c) { return c.id === id; });
+            if (!item) return;
+            
+            editandoId = id;
+            document.getElementById('modal-titulo').textContent = 'Editar Conquista';
+            document.getElementById('conquista-id').value = id;
+            document.getElementById('conquista-nome').value = item.nome || '';
+            document.getElementById('conquista-descricao').value = item.descricao || '';
+            document.getElementById('conquista-tipo').value = item.tipo || 'ouro';
+            document.getElementById('conquista-icone').value = item.icone || '';
+            document.getElementById('conquista-criterio').value = item.criterio || '';
+            document.getElementById('conquista-pontos').value = item.pontos || 0;
+            document.getElementById('modal-conquista').classList.add('show');
+        }
+        
+        function fecharModal() {
+            document.getElementById('modal-conquista').classList.remove('show');
+            editandoId = null;
+        }
+        
+        async function salvar() {
+            var nome = document.getElementById('conquista-nome').value.trim();
+            if (!nome) {
+                mostrarAlerta('Nome é obrigatório', 'error');
+                return;
+            }
+            
+            var btn = document.getElementById('btn-salvar');
+            btn.disabled = true;
+            btn.textContent = 'Salvando...';
+            
+            try {
+                var dados = {
+                    nome: nome,
+                    descricao: document.getElementById('conquista-descricao').value.trim() || null,
+                    tipo: document.getElementById('conquista-tipo').value,
+                    icone: document.getElementById('conquista-icone').value.trim() || '🏆',
+                    criterio: document.getElementById('conquista-criterio').value.trim() || null,
+                    pontos: parseInt(document.getElementById('conquista-pontos').value) || 0
+                };
+                
+                if (editandoId) {
+                    var { error } = await db.from('conquistas').update(dados).eq('id', editandoId);
+                    if (error) throw error;
+                    mostrarAlerta('Conquista atualizada!', 'success');
+                } else {
+                    var { error } = await db.from('conquistas').insert(dados);
+                    if (error) throw error;
+                    mostrarAlerta('Conquista criada!', 'success');
+                }
+                
+                fecharModal();
+                carregarConquistas();
+            } catch (erro) {
+                mostrarAlerta('Erro: ' + erro.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Salvar';
+            }
+        }
+        
+        async function excluir(id) {
+            if (!confirm('Deseja excluir esta conquista?')) return;
+            try {
+                var { error } = await db.from('conquistas').delete().eq('id', id);
+                if (error) throw error;
+                mostrarAlerta('Conquista excluída!', 'success');
+                carregarConquistas();
+            } catch (erro) {
+                mostrarAlerta('Erro: ' + erro.message, 'error');
+            }
+        }
+        
+        function mostrarAlerta(msg, tipo) {
+            var container = document.getElementById('alert-container');
+            container.innerHTML = '<div class="alert alert-' + tipo + ' show">' + msg + '</div>';
+            setTimeout(function() { container.innerHTML = ''; }, 5000);
+        }
+        
+        async function logout() {
+            await db.auth.signOut();
+            window.location.href = 'login.html';
+        }
+    </script>
+
+    <script>
+        function toggleSidebar() {
+            var sidebar = document.querySelector('.sidebar');
+            var overlay = document.querySelector('.sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --sucesso: #3FB950; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat'; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .nav-section { padding: 0 15px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { margin-bottom: 30px; }
+        .page-title { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; }
+        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 25px; }
+        .config-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; }
+        .config-card-header { padding: 20px; border-bottom: 1px solid var(--borda); display: flex; align-items: center; gap: 12px; }
+        .config-card-icon { font-size: 1.5rem; }
+        .config-card-title { font-family: 'Montserrat'; font-size: 1rem; font-weight: 700; }
+        .config-card-body { padding: 20px; }
+        .form-group { margin-bottom: 18px; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 6px; text-transform: uppercase; }
+        .form-input, .form-textarea { width: 100%; padding: 12px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-family: inherit; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); }
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .form-hint { font-size: 0.75rem; color: var(--texto-secundario); margin-top: 5px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .social-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .social-icon { width: 40px; text-align: center; font-size: 1.2rem; }
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; }
+        (max-width: 768px) { .sidebar { display: none; } .main { margin-left: 0; } .config-grid { grid-template-columns: 1fr; } }
+    
+                .logo-img { 
+            width: 45px !important;
+            height: 45px !important;
+            max-width: 45px !important;
+            max-height: 45px !important;
+            min-width: 45px !important;
+            min-height: 45px !important;
+            border-radius: 8px; 
+            object-fit: contain;
+            background: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.3));
+            display: block;
+        }
+    
+        /* RESPONSIVIDADE MOBILE */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--verde-neon);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+        }
+        
+        @media (max-width: 992px) {
+            .main { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; padding: 80px 15px 20px; }
+            .page-title { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar { width: 80%; }
+            .card { padding: 15px; }
+            .form-input, .form-select, .form-textarea { font-size: 16px; }
+        }
+
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<body x-data="adminConfig()" x-init="init()">
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <a href="admin-dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
+                <a href="admin-corridas.html" class="nav-item"><span>🏁</span> Corridas</a>
+                <a href="admin-atletas.html" class="nav-item"><span>👥</span> Atletas</a>
+                <a href="admin-planilhas.html" class="nav-item"><span>📋</span> Planilhas</a>
+                <a href="admin-config.html" class="nav-item active"><span>⚙️</span> Configurações</a>
+            </nav>
+        </aside>
+        
+        <main class="main">
+            <div class="header"><h1 class="page-title">⚙️ Configurações do Site</h1></div>
+            <div class="alert" x-show="sucesso" x-text="sucesso" x-transition></div>
+            
+            <div class="config-grid">
+                <div class="config-card">
+                    <div class="config-card-header"><span class="config-card-icon">📝</span><span class="config-card-title">Informações Gerais</span></div>
+                    <div class="config-card-body">
+                        <div class="form-group"><label class="form-label">Nome da Equipe</label><input type="text" class="form-input" x-model="config.nome_equipe"></div>
+                        <div class="form-group"><label class="form-label">Slogan</label><input type="text" class="form-input" x-model="config.slogan"></div>
+                        <div class="form-group"><label class="form-label">Citação Motivacional</label><textarea class="form-textarea" x-model="config.citacao_motivacional"></textarea></div>
+                        <button class="btn btn-primary" @click="salvar(['nome_equipe','slogan','citacao_motivacional'])">💾 Salvar</button>
+                    </div>
+                </div>
+                
+                <div class="config-card">
+                    <div class="config-card-header"><span class="config-card-icon">🖼️</span><span class="config-card-title">Imagens</span></div>
+                    <div class="config-card-body">
+                        <div class="form-group"><label class="form-label">URL do Banner Hero</label><input type="url" class="form-input" x-model="config.banner_url"><p class="form-hint">Imagem de fundo da página inicial</p></div>
+                        <div class="form-group"><label class="form-label">URL da Logo</label><input type="url" class="form-input" x-model="config.logo_url"></div>
+                        <button class="btn btn-primary" @click="salvar(['banner_url','logo_url'])">💾 Salvar</button>
+                    </div>
+                </div>
+                
+                <div class="config-card">
+                    <div class="config-card-header"><span class="config-card-icon">📱</span><span class="config-card-title">Redes Sociais</span></div>
+                    <div class="config-card-body">
+                        <div class="social-item"><span class="social-icon">📷</span><input type="text" class="form-input" x-model="config.instagram" placeholder="@usuario"></div>
+                        <div class="social-item"><span class="social-icon">🏃</span><input type="url" class="form-input" x-model="config.strava_url" placeholder="https://strava.com/clubs/..."></div>
+                        <div class="social-item"><span class="social-icon">💬</span><input type="text" class="form-input" x-model="config.whatsapp" placeholder="5531999999999"></div>
+                        <div class="social-item"><span class="social-icon">🎬</span><input type="url" class="form-input" x-model="config.youtube_url"></div>
+                        <button class="btn btn-primary" @click="salvar(['instagram','strava_url','whatsapp','youtube_url'])">💾 Salvar</button>
+                    </div>
+                </div>
+                
+                <div class="config-card">
+                    <div class="config-card-header"><span class="config-card-icon">📧</span><span class="config-card-title">Contato</span></div>
+                    <div class="config-card-body">
+                        <div class="form-group"><label class="form-label">E-mail</label><input type="email" class="form-input" x-model="config.email_contato"></div>
+                        <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-input" x-model="config.telefone_contato"></div>
+                        <div class="form-group"><label class="form-label">Localização</label><input type="text" class="form-input" x-model="config.localizacao"></div>
+                        <button class="btn btn-primary" @click="salvar(['email_contato','telefone_contato','localizacao'])">💾 Salvar</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function adminConfig() {
+            return {
+                config: {}, sucesso: '',
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    const { data } = await supabase.from('configuracoes_site').select('chave, valor');
+                    if (data) data.forEach(i => this.config[i.chave] = i.valor);
+                },
+                async salvar(chaves) {
+                    for (const chave of chaves) {
+                        const valor = this.config[chave] || '';
+                        const { data } = await supabase.from('configuracoes_site').select('id').eq('chave', chave).single();
+                        if (data) await supabase.from('configuracoes_site').update({ valor }).eq('chave', chave);
+                        else await supabase.from('configuracoes_site').insert({ chave, valor, descricao: chave });
+                    }
+                    this.sucesso = 'Salvo!'; setTimeout(() => this.sucesso = '', 3000);
+                }
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>

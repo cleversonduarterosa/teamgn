@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Corridas - Admin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --verde-neon: #00FF41;
+            --verde-primario: #2E7D32;
+            --fundo-principal: #0A1A0F;
+            --fundo-card: #0D2818;
+            --fundo-sidebar: #081510;
+            --fundo-input: #122E1C;
+            --texto-principal: #E6EDF3;
+            --texto-secundario: #8B949E;
+            --borda: #1E4D2B;
+            --erro: #F85149;
+            --sucesso: #3FB950;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        
+        .layout { display: flex; min-height: 100vh; }
+        
+        /* Sidebar simplificada */
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text { font-family: 'Montserrat', sans-serif; }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        
+        .nav-section { padding: 0 15px; margin-bottom: 20px; }
+        .nav-section-title { font-size: 0.7rem; font-weight: 700; color: var(--texto-secundario); text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; margin-bottom: 10px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: all 0.3s ease; margin-bottom: 4px; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .page-title { font-family: 'Montserrat', sans-serif; font-size: 1.8rem; font-weight: 800; }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s ease; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn-primary:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.4); }
+        .btn-secondary { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        .btn-secondary:hover { border-color: var(--verde-neon); }
+        .btn-danger { background: var(--erro); color: white; }
+        .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+        
+        /* Filtros */
+        .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-input { padding: 10px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 0.9rem; min-width: 200px; }
+        .filter-input:focus { outline: none; border-color: var(--verde-neon); }
+        .filter-select { padding: 10px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); cursor: pointer; }
+        
+        /* Tabela */
+        .table-container { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
+        .table { width: 100%; border-collapse: collapse; }
+        .table th, .table td { padding: 15px; text-align: left; border-bottom: 1px solid var(--borda); }
+        .table th { background: var(--fundo-input); font-size: 0.8rem; font-weight: 700; color: var(--texto-secundario); text-transform: uppercase; letter-spacing: 1px; }
+        .table tr:hover { background: var(--fundo-input); }
+        .table tr:last-child td { border-bottom: none; }
+        
+        .corrida-info { display: flex; align-items: center; gap: 12px; }
+        .corrida-img { width: 45px; max-width: 45px; height: 45px; max-height: 45px; border-radius: 8px; background: var(--verde-primario); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .corrida-nome { font-weight: 600; margin-bottom: 3px; }
+        .corrida-local { font-size: 0.8rem; color: var(--texto-secundario); }
+        
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; }
+        .badge-agendada { background: rgba(0, 255, 65, 0.15); color: var(--verde-neon); }
+        .badge-realizada { background: rgba(88, 166, 255, 0.15); color: #58A6FF; }
+        .badge-cancelada { background: rgba(248, 81, 73, 0.15); color: var(--erro); }
+        
+        .actions { display: flex; gap: 8px; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--borda); }
+        .modal-title { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--texto-secundario); font-size: 1.5rem; cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--borda); }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 6px; text-transform: uppercase; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-size: 0.9rem; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); }
+        .form-textarea { min-height: 100px; resize: vertical; font-family: inherit; }
+        .form-checkbox { display: flex; align-items: center; gap: 10px; }
+        .form-checkbox input { width: 18px; height: 18px; accent-color: var(--verde-neon); }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--erro); color: var(--erro); }
+        
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--texto-secundario); }
+        .empty-state-icon { font-size: 4rem; margin-bottom: 15px; opacity: 0.5; }
+        
+        .loading { display: flex; justify-content: center; padding: 40px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--borda); border-top-color: var(--verde-neon); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 1024px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; }
+        (max-width: 768px) {
+            .sidebar { display: none; }
+            .main { margin-left: 0; }
+            .table-container { overflow-x: auto; }
+            .filters { flex-direction: column; }
+            .filter-input { width: 100%; min-width: auto; }
+        }
+    
+                .logo-img { 
+            width: 45px !important;
+            height: 45px !important;
+            max-width: 45px !important;
+            max-height: 45px !important;
+            min-width: 45px !important;
+            min-height: 45px !important;
+            border-radius: 8px; 
+            object-fit: contain;
+            background: transparent;
+            filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.3));
+            display: block;
+        }
+    
+        /* RESPONSIVIDADE MOBILE */
+        .mobile-menu-btn {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: var(--verde-neon);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 255, 65, 0.3);
+        }
+        
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99;
+        }
+        
+        @media (max-width: 992px) {
+            .main { margin-left: 0; padding: 20px; }
+            .header { flex-direction: column; gap: 15px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar-overlay.open { display: block; }
+            .main { margin-left: 0; padding: 80px 15px 20px; }
+            .page-title { font-size: 1.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+        }
+        
+        @media (max-width: 480px) {
+            .sidebar { width: 80%; }
+            .card { padding: 15px; }
+            .form-input, .form-select, .form-textarea { font-size: 16px; }
+        }
+
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<body x-data="adminCorridas()" x-init="init()">
+    <div class="layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text">
+                        <div class="nome">TEAM GN</div>
+                        <div class="subtitulo">Saúde & Performance</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <a href="admin-dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
+                <a href="admin-corridas.html" class="nav-item active"><span>🏁</span> Corridas</a>
+                <a href="admin-atletas.html" class="nav-item"><span>👥</span> Atletas</a>
+                <a href="admin-planilhas.html" class="nav-item"><span>📋</span> Planilhas</a>
+                <a href="admin-config.html" class="nav-item"><span>⚙️</span> Configurações</a>
+                <a href="index.html" class="nav-item" target="_blank" rel="noopener noreferrer"><span>🌐</span> Ver Site</a>
+            </nav>
+        </aside>
+        
+        <!-- Main -->
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">🏁 Gerenciar Corridas</h1>
+                <button class="btn btn-primary" @click="abrirModal()">
+                    ➕ Nova Corrida
+                </button>
+            </div>
+            
+            <!-- Alertas -->
+            <div class="alert alert-success" x-show="sucesso" x-text="sucesso" x-transition></div>
+            <div class="alert alert-error" x-show="erro" x-text="erro" x-transition></div>
+            
+            <!-- Filtros -->
+            <div class="filters">
+                <input type="text" class="filter-input" placeholder="🔍 Buscar corrida..." x-model="filtro.busca" @input="filtrar()">
+                <select class="filter-select" x-model="filtro.status" @change="filtrar()">
+                    <option value="">Todos os status</option>
+                    <option value="agendada">Agendadas</option>
+                    <option value="realizada">Realizadas</option>
+                    <option value="cancelada">Canceladas</option>
+                </select>
+                <select class="filter-select" x-model="filtro.periodo" @change="filtrar()">
+                    <option value="">Todos os períodos</option>
+                    <option value="futuras">Próximas</option>
+                    <option value="passadas">Passadas</option>
+                </select>
+            </div>
+            
+            <!-- Loading -->
+            <div class="loading" x-show="loading">
+                <div class="spinner"></div>
+            </div>
+            
+            <!-- Tabela -->
+            <div class="table-container" x-show="!loading && corridasFiltradas.length > 0">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Corrida</th>
+                            <th>Data</th>
+                            <th>Distância</th>
+                            <th>Inscritos</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <template x-for="corrida in corridasFiltradas" :key="corrida.id">
+                            <tr>
+                                <td>
+                                    <div class="corrida-info">
+                                        <div class="corrida-img">🏃</div>
+                                        <div>
+                                            <div class="corrida-nome" x-text="corrida.nome"></div>
+                                            <div class="corrida-local" x-text="corrida.cidade + ' - ' + corrida.estado"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td x-text="formatarData(corrida.data_evento)"></td>
+                                <td x-text="corrida.distancia_km + ' km'"></td>
+                                <td x-text="corrida.total_inscritos || 0"></td>
+                                <td>
+                                    <span class="badge" :class="'badge-' + corrida.status" x-text="corrida.status"></span>
+                                </td>
+                                <td>
+                                    <div class="actions">
+                                        <button class="btn btn-secondary btn-sm" @click="editar(corrida)">✏️</button>
+                                        <button class="btn btn-danger btn-sm" @click="confirmarExclusao(corrida)">🗑️</button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Empty state -->
+            <div class="empty-state" x-show="!loading && corridasFiltradas.length === 0">
+                <div class="empty-state-icon">🏁</div>
+                <h3>Nenhuma corrida encontrada</h3>
+                <p>Crie sua primeira corrida clicando no botão acima.</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal Corrida -->
+    <div class="modal-overlay" x-show="modalAberto" x-transition @click.self="fecharModal()">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" x-text="corridaAtual.id ? 'Editar Corrida' : 'Nova Corrida'"></h2>
+                <button class="modal-close" @click="fecharModal()">&times;</button>
+            </div>
+            <form @submit.prevent="salvar()">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label">Nome da Corrida *</label>
+                        <input type="text" class="form-input" x-model="corridaAtual.nome" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Data *</label>
+                            <input type="date" class="form-input" x-model="corridaAtual.data_evento" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hora</label>
+                            <input type="time" class="form-input" x-model="corridaAtual.hora_evento">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Cidade *</label>
+                            <input type="text" class="form-input" x-model="corridaAtual.cidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Estado *</label>
+                            <select class="form-select" x-model="corridaAtual.estado" required>
+                                <option value="">Selecione</option>
+                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
+                                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Distância (km) *</label>
+                            <input type="number" step="0.1" class="form-input" x-model="corridaAtual.distancia_km" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valor Inscrição (R$)</label>
+                            <input type="number" step="0.01" class="form-input" x-model="corridaAtual.valor_inscricao">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Link de Inscrição</label>
+                        <input type="url" class="form-input" x-model="corridaAtual.link_inscricao" placeholder="https://...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Descrição</label>
+                        <textarea class="form-textarea" x-model="corridaAtual.descricao" placeholder="Detalhes da corrida..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" x-model="corridaAtual.status">
+                                <option value="agendada">Agendada</option>
+                                <option value="realizada">Realizada</option>
+                                <option value="cancelada">Cancelada</option>
+                                <option value="adiada">Adiada</option>
+                            </select>
+                        </div>
+                        <div class="form-group" style="display: flex; align-items: flex-end; gap: 20px; padding-bottom: 12px;">
+                            <label class="form-checkbox">
+                                <input type="checkbox" x-model="corridaAtual.destaque">
+                                <span>Destaque</span>
+                            </label>
+                            <label class="form-checkbox">
+                                <input type="checkbox" x-model="corridaAtual.exibir_calendario">
+                                <span>Exibir no site</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="fecharModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" :disabled="salvando">
+                        <span x-show="salvando">Salvando...</span>
+                        <span x-show="!salvando">Salvar</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function adminCorridas() {
+            return {
+                loading: true,
+                corridas: [],
+                corridasFiltradas: [],
+                modalAberto: false,
+                salvando: false,
+                sucesso: '',
+                erro: '',
+                filtro: { busca: '', status: '', periodo: '' },
+                corridaAtual: {},
+                
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    
+                    await this.carregar();
+                    
+                    // Verificar se tem parâmetro para abrir modal
+                    if (new URLSearchParams(window.location.search).get('nova')) {
+                        this.abrirModal();
+                    }
+                },
+                
+                async carregar() {
+                    this.loading = true;
+                    const { data } = await supabase
+                        .from('corridas')
+                        .select('*')
+                        .order('data_evento', { ascending: false });
+                    
+                    this.corridas = data || [];
+                    this.filtrar();
+                    this.loading = false;
+                },
+                
+                filtrar() {
+                    let resultado = [...this.corridas];
+                    const hoje = new Date().toISOString().split('T')[0];
+                    
+                    if (this.filtro.busca) {
+                        const busca = this.filtro.busca.toLowerCase();
+                        resultado = resultado.filter(c => 
+                            c.nome.toLowerCase().includes(busca) || 
+                            c.cidade.toLowerCase().includes(busca)
+                        );
+                    }
+                    
+                    if (this.filtro.status) {
+                        resultado = resultado.filter(c => c.status === this.filtro.status);
+                    }
+                    
+                    if (this.filtro.periodo === 'futuras') {
+                        resultado = resultado.filter(c => c.data_evento >= hoje);
+                    } else if (this.filtro.periodo === 'passadas') {
+                        resultado = resultado.filter(c => c.data_evento < hoje);
+                    }
+                    
+                    this.corridasFiltradas = resultado;
+                },
+                
+                abrirModal(corrida = null) {
+                    this.corridaAtual = corrida ? {...corrida} : {
+                        nome: '',
+                        data_evento: '',
+                        hora_evento: '',
+                        cidade: '',
+                        estado: 'MG',
+                        distancia_km: '',
+                        valor_inscricao: '',
+                        link_inscricao: '',
+                        descricao: '',
+                        status: 'agendada',
+                        destaque: false,
+                        exibir_calendario: true
+                    };
+                    this.modalAberto = true;
+                },
+                
+                fecharModal() {
+                    this.modalAberto = false;
+                    this.corridaAtual = {};
+                },
+                
+                editar(corrida) {
+                    this.abrirModal(corrida);
+                },
+                
+                async salvar() {
+                    this.salvando = true;
+                    this.erro = '';
+                    
+                    try {
+                        const dados = {
+                            nome: this.corridaAtual.nome,
+                            data_evento: this.corridaAtual.data_evento,
+                            hora_evento: this.corridaAtual.hora_evento || null,
+                            cidade: this.corridaAtual.cidade,
+                            estado: this.corridaAtual.estado,
+                            distancia_km: parseFloat(this.corridaAtual.distancia_km),
+                            valor_inscricao: this.corridaAtual.valor_inscricao ? parseFloat(this.corridaAtual.valor_inscricao) : null,
+                            link_inscricao: this.corridaAtual.link_inscricao || null,
+                            descricao: this.corridaAtual.descricao || null,
+                            status: this.corridaAtual.status,
+                            destaque: this.corridaAtual.destaque,
+                            exibir_calendario: this.corridaAtual.exibir_calendario
+                        };
+                        
+                        if (this.corridaAtual.id) {
+                            const { error } = await supabase.from('corridas').update(dados).eq('id', this.corridaAtual.id);
+                            if (error) throw error;
+                            this.sucesso = 'Corrida atualizada com sucesso!';
+                        } else {
+                            const { error } = await supabase.from('corridas').insert(dados);
+                            if (error) throw error;
+                            this.sucesso = 'Corrida criada com sucesso!';
+                        }
+                        
+                        this.fecharModal();
+                        await this.carregar();
+                        setTimeout(() => this.sucesso = '', 3000);
+                        
+                    } catch (error) {
+                        this.erro = error.message;
+                    } finally {
+                        this.salvando = false;
+                    }
+                },
+                
+                confirmarExclusao(corrida) {
+                    if (confirm(`Deseja excluir a corrida "${corrida.nome}"?`)) {
+                        this.excluir(corrida.id);
+                    }
+                },
+                
+                async excluir(id) {
+                    try {
+                        const { error } = await supabase.from('corridas').delete().eq('id', id);
+                        if (error) throw error;
+                        this.sucesso = 'Corrida excluída com sucesso!';
+                        await this.carregar();
+                        setTimeout(() => this.sucesso = '', 3000);
+                    } catch (error) {
+                        this.erro = error.message;
+                    }
+                },
+                
+                formatarData(data) {
+                    if (!data) return '';
+                    return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR');
+                }
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>
