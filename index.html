@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team GN - Saúde & Performance | Equipe de Corrida</title>
+    <meta name="description" content="Team GN é uma equipe de corrida dedicada a promover saúde, bem-estar e superação através do esporte.">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --verde-neon: #00FF41;
+            --verde-primario: #2E7D32;
+            --verde-escuro: #1B5E20;
+            --fundo-principal: #0A1A0F;
+            --fundo-card: #0D2818;
+            --fundo-header: rgba(10, 26, 15, 0.95);
+            --texto-principal: #E6EDF3;
+            --texto-secundario: #8B949E;
+            --borda: #1E4D2B;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
+        a { text-decoration: none; color: inherit; }
+        
+        /* Header */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: var(--fundo-header);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--borda);
+        }
+        
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 30px;
+        }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 75px;
+        }
+        
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-img { width: 50px; height: 50px; border-radius: 50%; }
+        .logo-text .nome { font-size: 1.1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat', sans-serif; }
+        .logo-text .subtitulo { font-size: 0.65rem; color: var(--texto-secundario); }
+        
+        /* Navigation */
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            list-style: none;
+        }
+        
+        .nav-links > li { position: relative; }
+        
+        .nav-links > li > a {
+            color: var(--texto-secundario);
+            font-weight: 600;
+            font-size: 0.85rem;
+            padding: 10px 15px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-links > li > a:hover { color: var(--verde-neon); background: rgba(0,255,65,0.1); }
+        
+        /* Dropdown */
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 8px;
+            min-width: 180px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            list-style: none;
+            padding: 8px 0;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+        }
+        
+        .nav-links > li:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+        
+        .dropdown-menu li a {
+            display: block;
+            padding: 10px 20px;
+            color: var(--texto-secundario);
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+        
+        .dropdown-menu li a:hover {
+            background: rgba(0,255,65,0.1);
+            color: var(--verde-neon);
+            padding-left: 25px;
+        }
+        
+        .arrow { font-size: 0.7rem; transition: transform 0.3s; }
+        .nav-links > li:hover .arrow { transform: rotate(180deg); }
+        
+        .btn-entrar {
+            background: transparent !important;
+            border: 2px solid var(--verde-neon) !important;
+            color: var(--verde-neon) !important;
+            padding: 8px 20px !important;
+            border-radius: 25px !important;
+            font-weight: 700 !important;
+        }
+        
+        .btn-entrar:hover {
+            background: var(--verde-neon) !important;
+            color: var(--fundo-principal) !important;
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+        
+        /* Mobile Menu Toggle */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 10px;
+        }
+        
+        .menu-toggle span {
+            width: 25px;
+            height: 3px;
+            background: var(--verde-neon);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            /* BANNER DE FUNDO - Altere a URL abaixo para a imagem do Supabase Storage */
+            background: 
+                linear-gradient(135deg, rgba(10, 26, 15, 0.85) 0%, rgba(13, 40, 24, 0.9) 50%, rgba(10, 26, 15, 0.95) 100%),
+                url('https://nofgmwjaqeovrsdxzfib.supabase.co/storage/v1/object/public/banners/Equipe_Team_GN.jpeg');
+            background-position: center center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            padding: 100px 30px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0, 255, 65, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        .hero-content {
+            text-align: center;
+            max-width: 900px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-badge {
+            display: inline-block;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--verde-neon);
+            color: var(--verde-neon);
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+        
+        .hero h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 25px;
+        }
+        
+        .hero h1 span { color: var(--verde-neon); text-shadow: 0 0 30px rgba(0, 255, 65, 0.5); }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--texto-secundario);
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .hero-buttons { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 15px 35px;
+            border-radius: 8px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            text-transform: uppercase;
+        }
+        
+        .btn-primary {
+            background: var(--verde-neon);
+            color: var(--fundo-principal);
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 255, 65, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--borda);
+            color: var(--texto-principal);
+        }
+        
+        .btn-secondary:hover {
+            border-color: var(--verde-neon);
+            color: var(--verde-neon);
+        }
+        
+        /* Sections */
+        section { padding: 100px 30px; }
+        
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+        
+        .section-badge {
+            display: inline-block;
+            background: rgba(0, 255, 65, 0.1);
+            border: 1px solid var(--verde-neon);
+            color: var(--verde-neon);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .section-header h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin-bottom: 15px;
+        }
+        
+        .section-header p {
+            color: var(--texto-secundario);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        
+        .card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            padding: 30px;
+            transition: all 0.3s;
+        }
+        
+        .card:hover {
+            border-color: var(--verde-neon);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 255, 65, 0.1);
+        }
+        
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 255, 65, 0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+        }
+        
+        .card h3 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .card p { color: var(--texto-secundario); font-size: 0.95rem; }
+        
+        /* Corridas Section */
+        #corridas { background: linear-gradient(180deg, var(--fundo-principal) 0%, #0D2818 100%); }
+        
+        .corrida-card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s;
+        }
+        
+        .corrida-card:hover { border-color: var(--verde-neon); }
+        
+        .corrida-banner {
+            height: 150px;
+            background: linear-gradient(135deg, var(--verde-primario), var(--verde-escuro));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+        }
+        
+        .corrida-info { padding: 25px; }
+        .corrida-info h3 { font-size: 1.2rem; margin-bottom: 10px; font-family: 'Montserrat', sans-serif; }
+        .corrida-meta { display: flex; gap: 20px; color: var(--texto-secundario); font-size: 0.85rem; margin-bottom: 15px; }
+        
+        /* Ranking */
+        #ranking { background: var(--fundo-principal); }
+        
+        .ranking-table {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        
+        .ranking-row {
+            display: grid;
+            grid-template-columns: 60px 1fr 120px 120px;
+            padding: 20px 25px;
+            align-items: center;
+            border-bottom: 1px solid var(--borda);
+            transition: all 0.3s;
+        }
+        
+        .ranking-row:hover { background: rgba(0, 255, 65, 0.05); }
+        .ranking-row:last-child { border-bottom: none; }
+        
+        .ranking-pos {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--verde-neon);
+        }
+        
+        .ranking-pos.gold { color: #FFD700; }
+        .ranking-pos.silver { color: #C0C0C0; }
+        .ranking-pos.bronze { color: #CD7F32; }
+        
+        .ranking-atleta { display: flex; align-items: center; gap: 15px; }
+        
+        .ranking-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--fundo-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: var(--verde-neon);
+        }
+        
+        .ranking-nome { font-weight: 600; }
+        .ranking-stat { text-align: center; color: var(--texto-secundario); }
+        .ranking-stat strong { display: block; color: var(--texto-principal); font-size: 1.1rem; }
+        
+        /* Atletas */
+        #atletas { background: linear-gradient(180deg, #0D2818 0%, var(--fundo-principal) 100%); }
+        
+        .atleta-card {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            border-radius: 16px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .atleta-card:hover { border-color: var(--verde-neon); }
+        
+        .atleta-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--verde-primario), var(--verde-neon));
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .atleta-card h3 { font-family: 'Montserrat', sans-serif; font-size: 1.2rem; margin-bottom: 5px; }
+        .atleta-card .categoria { color: var(--verde-neon); font-size: 0.85rem; margin-bottom: 15px; }
+        .atleta-card .stats { display: flex; justify-content: center; gap: 30px; }
+        .atleta-card .stat-item { text-align: center; }
+        .atleta-card .stat-value { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; font-weight: 800; color: var(--verde-neon); }
+        .atleta-card .stat-label { font-size: 0.75rem; color: var(--texto-secundario); }
+        
+        /* Footer */
+        footer {
+            background: var(--fundo-card);
+            border-top: 1px solid var(--borda);
+            padding: 60px 30px 30px;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr repeat(3, 1fr);
+            gap: 40px;
+        }
+        
+        .footer-brand .logo { margin-bottom: 20px; }
+        .footer-brand p { color: var(--texto-secundario); font-size: 0.9rem; max-width: 300px; margin-bottom: 20px; }
+        
+        .footer-social { display: flex; gap: 15px; }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--fundo-input);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--texto-secundario);
+            transition: all 0.3s;
+        }
+        .footer-social a:hover { background: var(--verde-neon); color: var(--fundo-principal); }
+        
+        .footer-links h4 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--verde-neon);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        .footer-links ul { list-style: none; }
+        .footer-links li { margin-bottom: 12px; }
+        .footer-links a { color: var(--texto-secundario); font-size: 0.9rem; transition: color 0.3s; }
+        .footer-links a:hover { color: var(--verde-neon); }
+        
+        .footer-bottom {
+            max-width: 1200px;
+            margin: 40px auto 0;
+            padding-top: 30px;
+            border-top: 1px solid var(--borda);
+            text-align: center;
+            color: var(--texto-secundario);
+            font-size: 0.85rem;
+        }
+        
+        .footer-bottom span { color: var(--verde-neon); }
+        
+        /* Mobile Responsive */
+        @media (max-width: 992px) {
+            .nav-links { 
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 0;
+                right: 0;
+                background: var(--fundo-header);
+                flex-direction: column;
+                padding: 20px;
+                border-bottom: 1px solid var(--borda);
+            }
+            
+            .nav-links.active { display: flex; }
+            
+            .nav-links > li { width: 100%; }
+            .nav-links > li > a { 
+                padding: 15px; 
+                justify-content: space-between;
+                border-radius: 8px;
+            }
+            
+            .dropdown-menu {
+                position: static;
+                opacity: 1;
+                visibility: visible;
+                transform: none;
+                background: rgba(0,0,0,0.2);
+                border: none;
+                margin-top: 10px;
+                display: none;
+            }
+            
+            .nav-links > li.dropdown-open .dropdown-menu { display: block; }
+            
+            .menu-toggle { display: flex; }
+            
+            .hero { 
+                min-height: 80vh;
+                padding: 80px 20px 40px;
+                background-attachment: scroll;
+                background-position: center center;
+                background-size: cover;
+            }
+            .hero h1 { font-size: 2.5rem; }
+            .hero p { font-size: 1rem; }
+            .hero-buttons { flex-direction: column; }
+            .hero-buttons .btn { width: 100%; }
+            
+            .footer-content { grid-template-columns: 1fr 1fr; }
+            .footer-brand { grid-column: 1 / -1; }
+            
+            .ranking-row { grid-template-columns: 50px 1fr 80px; }
+            .ranking-row > *:last-child { display: none; }
+        }
+        
+        @media (max-width: 576px) {
+            .hero { 
+                min-height: 70vh;
+                padding: 70px 15px 30px;
+                background-position: 60% center; /* Foca mais nas pessoas */
+            }
+            .hero h1 { font-size: 2rem; }
+            .hero p { font-size: 0.95rem; }
+            .hero-badge { font-size: 0.75rem; padding: 6px 15px; }
+            .hero::before { width: 300px; height: 300px; }
+            
+            .section-header h2 { font-size: 1.8rem; }
+            .footer-content { grid-template-columns: 1fr; }
+            .ranking-row { grid-template-columns: 40px 1fr; }
+            .ranking-stat { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div id="header-mount"></div>
+    
+
+    <section class="hero" id="inicio">
+        <div class="hero-content">
+            <span class="hero-badge">🏃 Equipe de Corrida</span>
+            <h1>Transforme sua vida através da <span>corrida</span></h1>
+            <p>Junte-se à Team GN e descubra seu potencial. Treinos personalizados, comunidade acolhedora e resultados reais.</p>
+            <div class="hero-buttons">
+                <a href="cadastro.html" class="btn btn-primary">Quero Participar</a>
+                <a href="sobre.html" class="btn btn-secondary">Conhecer a Equipe</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="corridas">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">🏁 CORRIDAS</span>
+                <h2>Próximas Corridas</h2>
+                <p>Confira os eventos que nossos atletas vai participar</p>
+            </div>
+            
+            <div class="cards-grid" id="corridas-lista">
+                <div class="corrida-card">
+                    <div class="corrida-banner">🏃</div>
+                    <div class="corrida-info">
+                        <h3>Carregando corridas...</h3>
+                        <div class="corrida-meta">
+                            <span>📅 --/--/----</span>
+                            <span>📍 ---</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="ranking">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">🏆 RANKING</span>
+                <h2>Top Atletas do Mês</h2>
+                <p>Os corredores que mais se destacaram</p>
+            </div>
+            
+            <div class="ranking-table" id="ranking-lista">
+                <div class="ranking-row">
+                    <span class="ranking-pos gold">1º</span>
+                    <div class="ranking-atleta">
+                        <div class="ranking-avatar">--</div>
+                        <span class="ranking-nome">Carregando...</span>
+                    </div>
+                    <div class="ranking-stat"><strong>--</strong>km</div>
+                    <div class="ranking-stat"><strong>--</strong>treinos</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="atletas">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge">👥 EQUIPE</span>
+                <h2>Nossos Atletas</h2>
+                <p>Conheça quem faz parte da equipe Team GN</p>
+            </div>
+            
+            <div class="cards-grid" id="atletas-lista">
+                <div class="atleta-card">
+                    <div class="atleta-avatar">--</div>
+                    <h3>Carregando...</h3>
+                    <p class="categoria">---</p>
+                    <div class="stats">
+                        <div class="stat-item">
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Corridas</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">--</div>
+                            <div class="stat-label">Km</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-brand">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <span class="logo-text">
+                        <span class="nome">TEAM GN</span>
+                        <span class="subtitulo">Saúde & Performance</span>
+                    </span>
+                </div>
+                <p>Transformar vidas por meio do esporte. Equipe de corrida dedicada a promover saúde, bem-estar e superação.</p>
+                <div class="footer-social">
+                    <a href="#" title="Instagram">📷</a>
+                    <a href="#" title="Strava">🏃</a>
+                    <a href="#" title="WhatsApp">💬</a>
+                    <a href="#" title="YouTube">🎬</a>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="#inicio">Início</a></li>
+                    <li><a href="#corridas">Corridas</a></li>
+                    <li><a href="#ranking">Ranking</a></li>
+                    <li><a href="#atletas">Atletas</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Equipe</h4>
+                <ul>
+                    <li><a href="sobre.html">Sobre Nós</a></li>
+                    <li><a href="galeria.html">Galeria</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-links">
+                <h4>Contato</h4>
+                <ul>
+                    <li><a href="contato.html">Fale Conosco</a></li>
+                    <li><a href="https://wa.me/5533999999999">WhatsApp</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>© 2026 <span>Team GN</span> - Saúde & Performance. Todos os direitos reservados. <span style="font-size: 0.75rem;">v2.4</span></p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        var SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        
+        var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Mobile menu toggle
+        function toggleMenu() {
+            var nav = document.getElementById('nav-links');
+            nav.classList.toggle('active');
+        }
+        
+        // Dropdown toggle for mobile
+        function toggleDropdown(e, el) {
+            if (window.innerWidth <= 992) {
+                e.preventDefault();
+                el.parentElement.classList.toggle('dropdown-open');
+            }
+        }
+        
+        // Close menu when clicking links
+        document.querySelectorAll('.nav-links a:not([onclick])').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('nav-links').classList.remove('active');
+            });
+        });
+        
+        // Load data
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCorridas();
+            carregarAtletas();
+            carregarRanking();
+        });
+        
+        async function carregarCorridas() {
+            try {
+                var { data, error } = await db.from('corridas').select('*').gte('data', new Date().toISOString().split('T')[0]).order('data').limit(3);
+                if (error) throw error;
+                
+                var container = document.getElementById('corridas-lista');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="corrida-card"><div class="corrida-banner">🏃</div><div class="corrida-info"><h3>Nenhuma corrida agendada</h3><p>Em breve novos eventos!</p></div></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(function(c) {
+                    var dataFormatada = c.data ? new Date(c.data).toLocaleDateString('pt-BR') : '--';
+                    return '<div class="corrida-card"><div class="corrida-banner">🏃</div><div class="corrida-info"><h3>' + (c.nome || 'Corrida') + '</h3><div class="corrida-meta"><span>📅 ' + dataFormatada + '</span><span>📍 ' + (c.local || '-') + '</span></div></div></div>';
+                }).join('');
+            } catch (e) {
+                console.error('Erro corridas:', e);
+            }
+        }
+        
+        async function carregarAtletas() {
+            try {
+                // Ordenar pelo mais antigo primeiro (atleta_desde ASC)
+                var { data, error } = await db.from('perfis').select('*').eq('ativo', true).order('atleta_desde', { ascending: true, nullsFirst: false }).limit(8);
+                if (error) throw error;
+                
+                var container = document.getElementById('atletas-lista');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="atleta-card"><div class="atleta-avatar">?</div><h3>Nenhum atleta</h3><p class="categoria">-</p></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(function(m) {
+                    var iniciais = (m.nome_completo || 'NN').split(' ').map(function(n) { return n[0]; }).slice(0, 2).join('').toUpperCase();
+                    var tempoEquipe = calcularTempoEquipe(m.atleta_desde);
+                    
+                    // Se tem foto, mostra a foto; senão mostra iniciais
+                    var avatarContent = m.foto_url 
+                        ? '<img src="' + m.foto_url + '" alt="' + (m.nome_completo || 'Atleta') + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" onerror="this.style.display=\'none\';this.parentElement.innerHTML=\'' + iniciais + '\'">'
+                        : iniciais;
+                    
+                    return '<div class="atleta-card"><div class="atleta-avatar">' + avatarContent + '</div><h3>' + (m.nome_completo || 'Atleta') + '</h3><p class="categoria">' + (m.categoria || 'Amador') + (tempoEquipe ? ' • ' + tempoEquipe : '') + '</p><div class="stats"><div class="stat-item"><div class="stat-value">' + (m.total_corridas || 0) + '</div><div class="stat-label">Corridas</div></div><div class="stat-item"><div class="stat-value">' + (m.total_km || 0) + '</div><div class="stat-label">Km</div></div></div></div>';
+                }).join('');
+            } catch (e) {
+                console.error('Erro atletas:', e);
+            }
+        }
+        
+        function calcularTempoEquipe(dataDesde) {
+            if (!dataDesde) return '';
+            var inicio = new Date(dataDesde);
+            var hoje = new Date();
+            var diffMs = hoje - inicio;
+            var diffDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            if (diffDias < 30) return diffDias + ' dias';
+            if (diffDias < 365) return Math.floor(diffDias / 30) + ' mês(es)';
+            var anos = Math.floor(diffDias / 365);
+            return anos + ' ano(s)';
+        }
+        
+        async function carregarRanking() {
+            try {
+                var { data, error } = await db.from('perfis').select('*').eq('ativo', true).order('total_km', { ascending: false }).limit(5);
+                if (error) throw error;
+                
+                var container = document.getElementById('ranking-lista');
+                if (!data || data.length === 0) {
+                    container.innerHTML = '<div class="ranking-row"><span class="ranking-pos">-</span><div class="ranking-atleta"><div class="ranking-avatar">?</div><span class="ranking-nome">Nenhum atleta</span></div><div class="ranking-stat"><strong>-</strong>km</div><div class="ranking-stat"><strong>-</strong>treinos</div></div>';
+                    return;
+                }
+                
+                container.innerHTML = data.map(function(m, i) {
+                    var iniciais = (m.nome_completo || 'NN').split(' ').map(function(n) { return n[0]; }).slice(0, 2).join('').toUpperCase();
+                    var posClass = i === 0 ? 'gold' : (i === 1 ? 'silver' : (i === 2 ? 'bronze' : ''));
+                    return '<div class="ranking-row"><span class="ranking-pos ' + posClass + '">' + (i + 1) + 'º</span><div class="ranking-atleta"><div class="ranking-avatar">' + iniciais + '</div><span class="ranking-nome">' + (m.nome_completo || 'Atleta') + '</span></div><div class="ranking-stat"><strong>' + (m.total_km || 0) + '</strong>km</div><div class="ranking-stat"><strong>' + (m.total_treinos || 0) + '</strong>treinos</div></div>';
+                }).join('');
+            } catch (e) {
+                console.error('Erro ranking:', e);
+            }
+        }
+    </script>
+    <script src="header-menu.js"></script>
+</body>
+</html>
