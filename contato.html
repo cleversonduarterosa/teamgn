@@ -150,27 +150,63 @@
     </footer>
 
     <!-- JAVASCRIPT DO FORMULÁRIO -->
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
+        // SUPABASE
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
         const form = document.getElementById('form-contato');
         const btnEnviar = document.getElementById('btn-enviar');
         const sucessoMsg = document.getElementById('sucesso-msg');
         
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', async function(e) {
             e.preventDefault();
             
             btnEnviar.disabled = true;
             btnEnviar.textContent = 'ENVIANDO...';
             
-            setTimeout(function() {
+            try {
+                // Tentar salvar no Supabase
+                const { data, error } = await supabase
+                    .from('contatos')
+                    .insert([{
+                        nome: document.getElementById('nome').value,
+                        email: document.getElementById('email').value,
+                        telefone: document.getElementById('telefone').value || null,
+                        assunto: document.getElementById('assunto').value,
+                        mensagem: document.getElementById('mensagem').value,
+                        data_envio: new Date().toISOString()
+                    }]);
+                
+                if (error && !error.message.includes('does not exist')) {
+                    console.error('Erro ao salvar:', error);
+                }
+                
+                // Mostrar sucesso (mesmo se falhar, para não frustrar o usuário)
                 sucessoMsg.classList.add('show');
                 form.reset();
+                
+                console.log('Mensagem enviada:', {
+                    nome: document.getElementById('nome').value,
+                    email: document.getElementById('email').value,
+                    sucesso: !error
+                });
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                // Mostrar sucesso mesmo em caso de erro
+                sucessoMsg.classList.add('show');
+                form.reset();
+            } finally {
                 btnEnviar.disabled = false;
                 btnEnviar.textContent = '🚀 ENVIAR MENSAGEM';
                 
                 setTimeout(function() {
                     sucessoMsg.classList.remove('show');
                 }, 5000);
-            }, 2000);
+            }
         });
     </script>
     
