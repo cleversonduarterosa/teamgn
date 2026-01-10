@@ -166,7 +166,7 @@
                     <div class="logo-text">
                         <span class="nome">TEAM GN</span><br>
                         <span class="subtitulo">Saúde & Performance</span>
-                        <span class="version-tag">v1.09</span>
+                        <span class="version-tag">v2.4</span>
                     </div>
                 </div>
             </div>
@@ -186,7 +186,7 @@
             <nav class="nav-section">
                 <div class="nav-title">Sistema</div>
                 <a href="admin-config.html" class="nav-item">⚙️ Configurações</a>
-                <a href="index.html" class="nav-item">🌐 Ver Site</a>
+                <a href="index.html" target="_blank" class="nav-item">🌐 Ver Site</a>
                 <a href="#" class="nav-item" onclick="logout()">🚪 Sair</a>
             </nav>
         </aside>
@@ -464,8 +464,19 @@
         }
         
         async function logout() {
-            await db.auth.signOut();
-            window.location.href = 'login.html';
+            try {
+                const { error } = await db.auth.signOut();
+                if (error) {
+                    console.error("Erro ao fazer logout:", error);
+                    alert("Erro ao sair: " + error.message);
+                } else {
+                    localStorage.removeItem("selectedRole");
+                    window.location.href = "login.html";
+                }
+            } catch (error) {
+                console.error("Erro no logout:", error);
+                alert("Erro ao sair. Tente novamente.");
+            }
         }
     </script>
 

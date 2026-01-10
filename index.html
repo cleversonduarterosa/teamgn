@@ -144,7 +144,7 @@
             cursor: pointer;
             padding: 10px;
         }
-       
+        
         .menu-toggle span {
             width: 25px;
             height: 3px;
@@ -580,47 +580,8 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-container">
-            <nav class="navbar">
-                <a href="index.html" class="logo">
-                    <img src="logo.png" alt="Team GN" class="logo-img">
-                    <span class="logo-text">
-                        <span class="nome">TEAM GN</span>
-                        <span class="subtitulo">Saúde & Performance</span>
-                    </span>
-                </a>
-                
-                <ul class="nav-links" id="nav-links">
-                    <li><a href="#inicio">Início</a></li>
-                    <li><a href="#corridas">Corridas</a></li>
-                    <li>
-                        <a href="#" onclick="toggleDropdown(event, this)">Equipe <span class="arrow">▼</span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="sobre.html">Sobre Nós</a></li>
-                            <li><a href="#atletas">Atletas</a></li>
-                            <li><a href="galeria.html">Galeria</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="#ranking">Ranking</a></li>
-                    <li>
-                        <a href="#" onclick="toggleDropdown(event, this)">Contato <span class="arrow">▼</span></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="contato.html">Fale Conosco</a></li>
-                            <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
-                        </ul>
-                    </li>
-                    <li><a href="login.html" class="btn-entrar">Entrar</a></li>
-                </ul>
-                
-                <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </nav>
-        </div>
-    </header>
+    <div id="header-mount"></div>
+    
 
     <section class="hero" id="inicio">
         <div class="hero-content">
@@ -754,7 +715,7 @@
         </div>
         
         <div class="footer-bottom">
-            <p>© 2026 <span>Team GN</span> - Saúde & Performance. Todos os direitos reservados. <span style="font-size: 0.75rem;">v1.09</span></p>
+            <p>© 2026 <span>Team GN</span> - Saúde & Performance. Todos os direitos reservados. <span style="font-size: 0.75rem;">v2.4</span></p>
         </div>
     </footer>
 
@@ -874,5 +835,6 @@
             }
         }
     </script>
+    <script src="header-menu.js"></script>
 </body>
 </html>

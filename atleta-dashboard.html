@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Painel - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2">function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }
+    </script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --erro: #F85149; --sucesso: #3FB950; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat'; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        
+        .user-card { padding: 15px 20px; margin: 0 15px 20px; background: var(--fundo-card); border-radius: 10px; border: 1px solid var(--borda); }
+        .user-card-avatar { width: 50px; height: 50px; border-radius: 50%; background: var(--verde-primario); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem; margin-bottom: 10px; }
+        .user-card-name { font-weight: 700; font-size: 0.95rem; }
+        .user-card-email { font-size: 0.75rem; color: var(--texto-secundario); }
+        
+        .nav-section { padding: 0 15px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; transition: all 0.3s; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; }
+        .page-subtitle { color: var(--texto-secundario); font-size: 0.9rem; margin-top: 5px; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+        .stat-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 25px; text-align: center; transition: all 0.3s; }
+        .stat-card:hover { border-color: var(--verde-neon); transform: translateY(-3px); }
+        .stat-icon { font-size: 2rem; margin-bottom: 10px; }
+        .stat-value { font-family: 'Montserrat'; font-size: 2rem; font-weight: 900; color: var(--verde-neon); }
+        .stat-label { color: var(--texto-secundario); font-size: 0.85rem; margin-top: 5px; }
+        
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        .card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; overflow: hidden; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--borda); }
+        .card-title { font-family: 'Montserrat'; font-size: 1rem; font-weight: 700; }
+        .card-body { padding: 20px; }
+        
+        .planilha-dia { display: flex; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--borda); }
+        .planilha-dia:last-child { border-bottom: none; }
+        .planilha-data { text-align: center; min-width: 50px; }
+        .planilha-data .dia { font-family: 'Montserrat'; font-size: 1.3rem; font-weight: 900; color: var(--verde-neon); }
+        .planilha-data .nome { font-size: 0.7rem; color: var(--texto-secundario); text-transform: uppercase; }
+        .planilha-treino { flex: 1; }
+        .planilha-treino-tipo { font-weight: 600; margin-bottom: 3px; }
+        .planilha-treino-desc { font-size: 0.85rem; color: var(--texto-secundario); }
+        .planilha-hoje { background: rgba(0, 255, 65, 0.05); border-radius: 8px; padding: 15px; margin: -15px; }
+        
+        .conquista-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--borda); }
+        .conquista-item:last-child { border-bottom: none; }
+        .conquista-icon { font-size: 1.5rem; }
+        .conquista-info h4 { font-size: 0.9rem; margin-bottom: 2px; }
+        .conquista-info p { font-size: 0.75rem; color: var(--texto-secundario); }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn-secondary { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--borda); }
+        .modal-title { font-family: 'Montserrat'; font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--texto-secundario); font-size: 1.5rem; cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--borda); }
+        
+        .form-group { margin-bottom: 18px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 6px; text-transform: uppercase; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-family: inherit; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--verde-neon); }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        
+        .empty-state { text-align: center; padding: 40px; color: var(--texto-secundario); }
+        
+        @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .content-grid { grid-template-columns: 1fr; } }
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; } .main { margin-left: 0; } .stats-grid { grid-template-columns: 1fr; } }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    </style>
+</head>
+<body x-data="painelAtleta()" x-init="init()">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+                </div>
+            </div>
+            
+            <div class="user-card">
+                <div class="user-card-avatar" x-text="getInitials(usuario?.nome_completo || usuario?.email)"></div>
+                <div class="user-card-name" x-text="usuario?.apelido || usuario?.nome_completo || usuario?.email?.split('@')[0]"></div>
+                <div class="user-card-email" x-text="usuario?.email"></div>
+            </div>
+            
+            <nav class="nav-section">
+                <a href="atleta-dashboard.html" class="nav-item active"><span>🏠</span> Meu Painel</a>
+                <a href="atleta-treinos.html" class="nav-item"><span>💪</span> Meus Treinos</a>
+                <a href="atleta-planilha.html" class="nav-item"><span>📋</span> Minha Planilha</a>
+                <a href="atleta-corridas.html" class="nav-item"><span>🏁</span> Minhas Corridas</a>
+                <a href="atleta-perfil.html" class="nav-item"><span>👤</span> Meu Perfil</a>
+                <a href="index.html" target="_blank" class="nav-item"><span>🌐</span> Ver Site</a>
+                <a href="#" class="nav-item" @click.prevent="logout()"><span>🚪</span> Sair</a>
+            </nav>
+        </aside>
+        
+        <main class="main">
+            <div class="header">
+                <div>
+                    <h1 class="page-title">Olá, <span x-text="usuario?.apelido || usuario?.nome_completo?.split(' ')[0] || usuario?.email?.split('@')[0] || 'Atleta'"></span>! 👋</h1>
+                    <p class="page-subtitle">Veja seu progresso e treinos de hoje</p>
+                </div>
+                <button class="btn btn-primary" @click="modalTreino = true">➕ Registrar Treino</button>
+            </div>
+            
+            <div class="alert alert-success" x-show="sucesso" x-text="sucesso" x-transition></div>
+            
+            <!-- Stats -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">📏</div>
+                    <div class="stat-value" x-text="stats.km_total"></div>
+                    <div class="stat-label">KM Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">💪</div>
+                    <div class="stat-value" x-text="stats.treinos"></div>
+                    <div class="stat-label">Treinos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏁</div>
+                    <div class="stat-value" x-text="stats.corridas"></div>
+                    <div class="stat-label">Corridas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" x-text="stats.conquistas"></div>
+                    <div class="stat-label">Conquistas</div>
+                </div>
+            </div>
+            
+            <div class="content-grid">
+                <!-- Planilha da Semana -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">📋 Treinos da Semana</h2>
+                        <a href="atleta-planilha.html" class="btn btn-secondary" style="padding:8px 16px;font-size:0.8rem;">Ver completa</a>
+                    </div>
+                    <div class="card-body">
+                        <template x-for="dia in planilhaSemana" :key="dia.data">
+                            <div class="planilha-dia" :class="{ 'planilha-hoje': dia.ehHoje }">
+                                <div class="planilha-data">
+                                    <div class="dia" x-text="dia.numero"></div>
+                                    <div class="nome" x-text="dia.nomeDia"></div>
+                                </div>
+                                <div class="planilha-treino">
+                                    <template x-if="dia.treino">
+                                        <div>
+                                            <div class="planilha-treino-tipo" x-text="dia.treino.tipo_nome || 'Treino'"></div>
+                                            <div class="planilha-treino-desc" x-text="(dia.treino.distancia_planejada || '?') + ' km - ' + (dia.treino.observacoes || 'Sem descrição')"></div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!dia.treino">
+                                        <div class="planilha-treino-desc" x-text="dia.ehHoje ? '🏖️ Descanso hoje' : 'Sem treino'"></div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="empty-state" x-show="planilhaSemana.length === 0">
+                            <p>Nenhuma planilha ativa. Fale com o treinador!</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Conquistas -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">🏆 Conquistas</h2>
+                    </div>
+                    <div class="card-body">
+                        <template x-for="conquista in conquistas" :key="conquista.id">
+                            <div class="conquista-item">
+                                <div class="conquista-icon" x-text="conquista.icone || '🏅'"></div>
+                                <div class="conquista-info">
+                                    <h4 x-text="conquista.nome"></h4>
+                                    <p x-text="conquista.descricao"></p>
+                                </div>
+                            </div>
+                        </template>
+                        <div class="empty-state" x-show="conquistas.length === 0">
+                            <p>Continue treinando para ganhar conquistas!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal Registrar Treino -->
+    <div class="modal-overlay" x-show="modalTreino" x-transition @click.self="modalTreino = false">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title">➕ Registrar Treino</h2>
+                <button class="modal-close" @click="modalTreino = false">&times;</button>
+            </div>
+            <form @submit.prevent="salvarTreino()">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Data *</label>
+                            <input type="date" class="form-input" x-model="novoTreino.data_treino" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Treino</label>
+                            <select class="form-select" x-model="novoTreino.tipo_treino_id">
+                                <option value="">Selecione</option>
+                                <template x-for="tipo in tiposTreino" :key="tipo.id">
+                                    <option :value="tipo.id" x-text="tipo.nome"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Distância (km) *</label>
+                            <input type="number" step="0.01" class="form-input" x-model="novoTreino.distancia_km" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duração (min)</label>
+                            <input type="number" class="form-input" x-model="novoTreino.duracao_minutos">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Pace (min/km)</label>
+                            <input type="text" class="form-input" x-model="novoTreino.pace" placeholder="5:30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">FC Média</label>
+                            <input type="number" class="form-input" x-model="novoTreino.fc_media">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        <textarea class="form-textarea" x-model="novoTreino.observacoes" placeholder="Como foi o treino?"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="modalTreino = false">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function painelAtleta() {
+            return {
+                usuario: null, stats: { km_total: 0, treinos: 0, corridas: 0, conquistas: 0 },
+                planilhaSemana: [], conquistas: [], tiposTreino: [],
+                modalTreino: false, novoTreino: {}, sucesso: '',
+                
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    
+                    const { data: perfil } = await supabase.from('perfis').select('*').eq('id', session.user.id).single();
+                    this.usuario = { ...perfil, email: session.user.email };
+                    
+                    this.novoTreino = { data_treino: new Date().toISOString().split('T')[0] };
+                    
+                    await this.carregarStats();
+                    await this.carregarPlanilhaSemana();
+                    await this.carregarConquistas();
+                    await this.carregarTiposTreino();
+                },
+                
+                async carregarStats() {
+                    const { data: treinos } = await supabase.from('treinos').select('distancia_km').eq('usuario_id', this.usuario.id);
+                    if (treinos) {
+                        this.stats.treinos = treinos.length;
+                        this.stats.km_total = Math.round(treinos.reduce((a, t) => a + (parseFloat(t.distancia_km) || 0), 0));
+                    }
+                    const { count: corridas } = await supabase.from('inscricoes').select('*', { count: 'exact', head: true }).eq('usuario_id', this.usuario.id);
+                    this.stats.corridas = corridas || 0;
+                    const { count: conquistas } = await supabase.from('conquistas_atletas').select('*', { count: 'exact', head: true }).eq('usuario_id', this.usuario.id);
+                    this.stats.conquistas = conquistas || 0;
+                },
+                
+                async carregarPlanilhaSemana() {
+                    const { data: planilha } = await supabase.from('planilhas_treino').select('id').eq('usuario_id', this.usuario.id).eq('ativa', true).single();
+                    if (!planilha) return;
+                    
+                    const hoje = new Date();
+                    const inicio = new Date(hoje); inicio.setDate(hoje.getDate() - hoje.getDay());
+                    const nomes = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+                    const dias = [];
+                    
+                    for (let i = 0; i < 7; i++) {
+                        const data = new Date(inicio); data.setDate(inicio.getDate() + i);
+                        const dataStr = data.toISOString().split('T')[0];
+                        dias.push({ data: dataStr, nomeDia: nomes[i], numero: data.getDate(), ehHoje: dataStr === hoje.toISOString().split('T')[0], treino: null });
+                    }
+                    
+                    const { data: treinos } = await supabase.from('treinos_planejados').select('*, tipos_treino(nome)').eq('planilha_id', planilha.id).gte('data_treino', dias[0].data).lte('data_treino', dias[6].data);
+                    if (treinos) {
+                        treinos.forEach(t => {
+                            const dia = dias.find(d => d.data === t.data_treino);
+                            if (dia) { t.tipo_nome = t.tipos_treino?.nome; dia.treino = t; }
+                        });
+                    }
+                    this.planilhaSemana = dias;
+                },
+                
+                async carregarConquistas() {
+                    const { data } = await supabase.from('conquistas_atletas').select('*, conquistas(nome, descricao, icone)').eq('usuario_id', this.usuario.id).limit(5);
+                    this.conquistas = (data || []).map(c => ({ ...c.conquistas, id: c.id }));
+                },
+                
+                async carregarTiposTreino() {
+                    const { data } = await supabase.from('tipos_treino').select('*').eq('ativo', true).order('nome');
+                    this.tiposTreino = data || [];
+                },
+                
+                async salvarTreino() {
+                    const { error } = await supabase.from('treinos').insert({
+                        usuario_id: this.usuario.id,
+                        data_treino: this.novoTreino.data_treino,
+                        tipo_treino_id: this.novoTreino.tipo_treino_id || null,
+                        distancia_km: parseFloat(this.novoTreino.distancia_km),
+                        duracao_minutos: this.novoTreino.duracao_minutos ? parseInt(this.novoTreino.duracao_minutos) : null,
+                        pace: this.novoTreino.pace || null,
+                        fc_media: this.novoTreino.fc_media ? parseInt(this.novoTreino.fc_media) : null,
+                        observacoes: this.novoTreino.observacoes || null
+                    });
+                    
+                    if (!error) {
+                        this.modalTreino = false;
+                        this.sucesso = 'Treino registrado!';
+                        this.novoTreino = { data_treino: new Date().toISOString().split('T')[0] };
+                        await this.carregarStats();
+                        setTimeout(() => this.sucesso = '', 3000);
+                    }
+                },
+                
+                getInitials(nome) {
+                    if (!nome) return '?';
+                    const p = nome.split(' ');
+                    return p.length >= 2 ? (p[0][0] + p[p.length-1][0]).toUpperCase() : nome.substring(0,2).toUpperCase();
+                },
+                
+                async logout() {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Erro ao fazer logout:', error);
+                            alert('Erro ao sair: ' + error.message);
+                        } else {
+                            localStorage.removeItem('selectedRole');
+                            window.location.href = 'login.html';
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        alert('Erro ao sair. Tente novamente.');
+                    }
+                }
+            };
+        }
+    function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js">function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }
+    </script>
+</body>
+</html>

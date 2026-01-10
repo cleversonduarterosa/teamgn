@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha Planilha - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --sucesso: #3FB950; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat'; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .nav-section { padding: 0 15px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; transition: all 0.3s; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-title { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; }
+        
+        .planilha-info { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .planilha-nome { font-family: 'Montserrat'; font-weight: 700; }
+        .planilha-periodo { color: var(--texto-secundario); font-size: 0.85rem; }
+        
+        .legenda { display: flex; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .legenda-item { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; color: var(--texto-secundario); }
+        .legenda-cor { width: 12px; height: 12px; border-radius: 3px; }
+        .legenda-cor.leve { background: #4CAF50; }
+        .legenda-cor.moderado { background: #FFC107; }
+        .legenda-cor.forte { background: #F44336; }
+        .legenda-cor.prova { background: #FFD700; }
+        
+        .semana-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .semana-nav { display: flex; align-items: center; gap: 15px; }
+        .semana-nav button { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); width: 40px; height: 40px; border-radius: 8px; cursor: pointer; font-size: 1.2rem; transition: all 0.3s; }
+        .semana-nav button:hover { border-color: var(--verde-neon); }
+        .semana-titulo { font-family: 'Montserrat'; font-size: 1.1rem; font-weight: 700; }
+        .btn { padding: 10px 20px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 0.85rem; font-weight: 700; cursor: pointer; background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        .btn:hover { border-color: var(--verde-neon); }
+        
+        .semana-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+        .dia-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; min-height: 180px; transition: all 0.3s; }
+        .dia-card:hover { border-color: var(--verde-neon); }
+        .dia-card.hoje { border-color: var(--verde-neon); box-shadow: 0 0 20px rgba(0, 255, 65, 0.2); }
+        .dia-card.prova { border-color: #FFD700; background: rgba(255, 215, 0, 0.05); }
+        .dia-header { padding: 12px; border-bottom: 1px solid var(--borda); text-align: center; }
+        .dia-nome { font-size: 0.7rem; color: var(--texto-secundario); text-transform: uppercase; letter-spacing: 1px; }
+        .dia-numero { font-family: 'Montserrat'; font-size: 1.5rem; font-weight: 900; color: var(--verde-neon); }
+        .dia-content { padding: 12px; }
+        .dia-treino { background: var(--fundo-input); border-radius: 8px; padding: 10px; margin-bottom: 8px; border-left: 3px solid var(--verde-neon); }
+        .dia-treino.leve { border-left-color: #4CAF50; }
+        .dia-treino.moderada { border-left-color: #FFC107; }
+        .dia-treino.forte { border-left-color: #F44336; }
+        .dia-treino-tipo { font-weight: 600; font-size: 0.85rem; margin-bottom: 5px; }
+        .dia-treino-km { font-size: 0.9rem; color: var(--verde-neon); font-weight: 700; }
+        .dia-treino-obs { font-size: 0.75rem; color: var(--texto-secundario); margin-top: 5px; }
+        .dia-descanso { text-align: center; padding: 20px; color: var(--texto-secundario); font-size: 0.85rem; }
+        
+        .empty-state { text-align: center; padding: 80px 20px; color: var(--texto-secundario); }
+        .empty-state h3 { font-family: 'Montserrat'; margin-bottom: 10px; }
+        
+        @media (max-width: 1200px) { .semana-grid { grid-template-columns: repeat(4, 1fr); } }
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; } .main { margin-left: 0; } .semana-grid { grid-template-columns: 1fr; } }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    </style>
+</head>
+<body x-data="minhaPlanilha()" x-init="init()">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <a href="atleta-dashboard.html" class="nav-item"><span>🏠</span> Meu Painel</a>
+                <a href="atleta-treinos.html" class="nav-item"><span>💪</span> Meus Treinos</a>
+                <a href="atleta-planilha.html" class="nav-item active"><span>📋</span> Minha Planilha</a>
+                <a href="atleta-corridas.html" class="nav-item"><span>🏁</span> Minhas Corridas</a>
+                <a href="atleta-perfil.html" class="nav-item"><span>👤</span> Meu Perfil</a>
+            </nav>
+        </aside>
+        
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">📋 Minha Planilha</h1>
+            </div>
+            
+            <template x-if="planilha">
+                <div>
+                    <div class="planilha-info">
+                        <div>
+                            <div class="planilha-nome" x-text="planilha.nome"></div>
+                            <div class="planilha-periodo">Início: <span x-text="formatarData(planilha.data_inicio)"></span></div>
+                        </div>
+                        <div style="color: var(--verde-neon); font-weight: 600;">✅ Ativa</div>
+                    </div>
+                    
+                    <div class="legenda">
+                        <div class="legenda-item"><div class="legenda-cor leve"></div> Leve</div>
+                        <div class="legenda-item"><div class="legenda-cor moderado"></div> Moderado</div>
+                        <div class="legenda-item"><div class="legenda-cor forte"></div> Forte</div>
+                        <div class="legenda-item"><div class="legenda-cor prova"></div> Prova</div>
+                    </div>
+                    
+                    <div class="semana-header">
+                        <div class="semana-nav">
+                            <button @click="semanaAnterior()">◀</button>
+                            <span class="semana-titulo" x-text="tituloSemana"></span>
+                            <button @click="proximaSemana()">▶</button>
+                        </div>
+                        <button class="btn" @click="irParaHoje()">📍 Hoje</button>
+                    </div>
+                    
+                    <div class="semana-grid">
+                        <template x-for="dia in diasSemana" :key="dia.data">
+                            <div class="dia-card" :class="{ 'hoje': dia.ehHoje, 'prova': dia.ehProva }">
+                                <div class="dia-header">
+                                    <div class="dia-nome" x-text="dia.nomeDia"></div>
+                                    <div class="dia-numero" x-text="dia.numero"></div>
+                                </div>
+                                <div class="dia-content">
+                                    <template x-if="dia.treino">
+                                        <div class="dia-treino" :class="dia.treino.intensidade">
+                                            <div class="dia-treino-tipo" x-text="dia.treino.tipo_nome || 'Treino'"></div>
+                                            <div class="dia-treino-km" x-text="(dia.treino.distancia_planejada || '?') + ' km'"></div>
+                                            <div class="dia-treino-obs" x-show="dia.treino.observacoes" x-text="dia.treino.observacoes"></div>
+                                        </div>
+                                    </template>
+                                    <template x-if="!dia.treino">
+                                        <div class="dia-descanso">🏖️ Descanso</div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+            
+            <div class="empty-state" x-show="!planilha && !loading">
+                <h3>📋 Nenhuma planilha ativa</h3>
+                <p>Seu treinador ainda não criou uma planilha para você.</p>
+                <p>Entre em contato para solicitar sua planilha personalizada!</p>
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function minhaPlanilha() {
+            return {
+                usuario: null, planilha: null, loading: true,
+                semanaAtual: new Date(), diasSemana: [],
+                
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    this.usuario = { id: session.user.id };
+                    await this.carregarPlanilha();
+                    this.loading = false;
+                },
+                
+                async carregarPlanilha() {
+                    const { data } = await supabase.from('planilhas_treino').select('*').eq('usuario_id', this.usuario.id).eq('ativa', true).single();
+                    this.planilha = data;
+                    if (data) this.gerarDiasSemana();
+                },
+                
+                gerarDiasSemana() {
+                    const inicio = new Date(this.semanaAtual);
+                    inicio.setDate(inicio.getDate() - inicio.getDay());
+                    const dias = [];
+                    const hoje = new Date().toISOString().split('T')[0];
+                    const nomes = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'];
+                    
+                    for (let i = 0; i < 7; i++) {
+                        const data = new Date(inicio); data.setDate(inicio.getDate() + i);
+                        const dataStr = data.toISOString().split('T')[0];
+                        dias.push({ data: dataStr, nomeDia: nomes[i], numero: data.getDate(), ehHoje: dataStr === hoje, ehProva: false, treino: null });
+                    }
+                    this.diasSemana = dias;
+                    this.carregarTreinos();
+                },
+                
+                async carregarTreinos() {
+                    if (!this.planilha) return;
+                    const { data } = await supabase.from('treinos_planejados').select('*, tipos_treino(nome)').eq('planilha_id', this.planilha.id).gte('data_treino', this.diasSemana[0].data).lte('data_treino', this.diasSemana[6].data);
+                    if (data) {
+                        data.forEach(t => {
+                            const dia = this.diasSemana.find(d => d.data === t.data_treino);
+                            if (dia) { t.tipo_nome = t.tipos_treino?.nome; dia.treino = t; if (t.e_dia_prova) dia.ehProva = true; }
+                        });
+                    }
+                },
+                
+                get tituloSemana() {
+                    if (!this.diasSemana.length) return '';
+                    const i = new Date(this.diasSemana[0].data + 'T00:00:00'), f = new Date(this.diasSemana[6].data + 'T00:00:00');
+                    const m = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+                    return `${i.getDate()} ${m[i.getMonth()]} - ${f.getDate()} ${m[f.getMonth()]} ${f.getFullYear()}`;
+                },
+                
+                semanaAnterior() { this.semanaAtual.setDate(this.semanaAtual.getDate() - 7); this.gerarDiasSemana(); },
+                proximaSemana() { this.semanaAtual.setDate(this.semanaAtual.getDate() + 7); this.gerarDiasSemana(); },
+                irParaHoje() { this.semanaAtual = new Date(); this.gerarDiasSemana(); },
+                formatarData(d) { return d ? new Date(d + 'T00:00:00').toLocaleDateString('pt-BR') : ''; }
+            ,
+                async logout() {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Erro ao fazer logout:', error);
+                            alert('Erro ao sair: ' + error.message);
+                        } else {
+                            localStorage.removeItem('selectedRole');
+                            window.location.href = 'login.html';
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        alert('Erro ao sair. Tente novamente.');
+                    }
+                }
+
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>

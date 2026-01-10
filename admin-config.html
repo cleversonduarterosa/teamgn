@@ -206,6 +206,23 @@
                     }
                     this.sucesso = 'Salvo!'; setTimeout(() => this.sucesso = '', 3000);
                 }
+            ,
+                async logout() {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Erro ao fazer logout:', error);
+                            alert('Erro ao sair: ' + error.message);
+                        } else {
+                            localStorage.removeItem('selectedRole');
+                            window.location.href = 'login.html';
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        alert('Erro ao sair. Tente novamente.');
+                    }
+                }
+
             };
         }
     </script>

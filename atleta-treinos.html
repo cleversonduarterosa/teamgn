@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meus Treinos - Team GN</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-sidebar: #081510; --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --erro: #F85149; --sucesso: #3FB950; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        [x-cloak] { display: none !important; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); min-height: 100vh; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: var(--fundo-sidebar); border-right: 1px solid var(--borda); padding: 20px 0; position: fixed; height: 100vh; }
+        .sidebar-header { padding: 0 20px 25px; border-bottom: 1px solid var(--borda); margin-bottom: 20px; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo svg { width: 45px; height: 45px; filter: drop-shadow(0 0 15px rgba(0, 255, 65, 0.5)); }
+        .logo-text .nome { font-size: 0.95rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat'; }
+        .logo-text .subtitulo { font-size: 0.6rem; color: var(--texto-secundario); }
+        .version-tag { font-size: 0.55rem; color: var(--verde-neon); background: rgba(0,255,65,0.1); padding: 2px 8px; border-radius: 4px; margin-top: 5px; display: inline-block; }
+        .nav-section { padding: 0 15px; }
+        .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border-radius: 8px; color: var(--texto-secundario); text-decoration: none; font-size: 0.9rem; margin-bottom: 4px; transition: all 0.3s; }
+        .nav-item:hover { background: var(--fundo-card); color: var(--texto-principal); }
+        .nav-item.active { background: rgba(0, 255, 65, 0.1); color: var(--verde-neon); border-left: 3px solid var(--verde-neon); }
+        .main { flex: 1; margin-left: 260px; padding: 25px; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; flex-wrap: wrap; gap: 15px; }
+        .page-title { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 800; }
+        
+        .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-mini { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 10px; padding: 15px; text-align: center; }
+        .stat-mini-value { font-family: 'Montserrat'; font-size: 1.5rem; font-weight: 900; color: var(--verde-neon); }
+        .stat-mini-label { font-size: 0.75rem; color: var(--texto-secundario); }
+        
+        .filters { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .filter-input, .filter-select { padding: 10px 15px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); }
+        .filter-input:focus, .filter-select:focus { outline: none; border-color: var(--verde-neon); }
+        
+        .btn { padding: 12px 24px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn-secondary { background: var(--fundo-input); border: 1px solid var(--borda); color: var(--texto-principal); }
+        .btn-sm { padding: 8px 16px; font-size: 0.8rem; }
+        
+        .treinos-list { display: flex; flex-direction: column; gap: 15px; }
+        .treino-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; display: flex; gap: 20px; align-items: center; transition: all 0.3s; }
+        .treino-card:hover { border-color: var(--verde-neon); }
+        .treino-data { text-align: center; min-width: 60px; }
+        .treino-data .dia { font-family: 'Montserrat'; font-size: 1.8rem; font-weight: 900; color: var(--verde-neon); }
+        .treino-data .mes { font-size: 0.7rem; color: var(--texto-secundario); text-transform: uppercase; }
+        .treino-info { flex: 1; }
+        .treino-tipo { font-weight: 700; font-size: 1rem; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; }
+        .treino-tipo .badge { padding: 3px 8px; border-radius: 12px; font-size: 0.65rem; font-weight: 700; background: rgba(0, 255, 65, 0.15); color: var(--verde-neon); }
+        .treino-detalhes { display: flex; gap: 20px; color: var(--texto-secundario); font-size: 0.85rem; }
+        .treino-detalhe { display: flex; align-items: center; gap: 5px; }
+        .treino-obs { font-size: 0.8rem; color: var(--texto-secundario); margin-top: 8px; font-style: italic; }
+        .treino-actions { display: flex; gap: 8px; }
+        
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
+        .modal { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--borda); }
+        .modal-title { font-family: 'Montserrat'; font-size: 1.2rem; font-weight: 700; }
+        .modal-close { background: none; border: none; color: var(--texto-secundario); font-size: 1.5rem; cursor: pointer; }
+        .modal-body { padding: 20px; }
+        .modal-footer { display: flex; justify-content: flex-end; gap: 10px; padding: 20px; border-top: 1px solid var(--borda); }
+        .form-group { margin-bottom: 18px; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 6px; text-transform: uppercase; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 12px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-family: inherit; }
+        .form-input:focus, .form-select:focus { outline: none; border-color: var(--verde-neon); }
+        .form-textarea { min-height: 80px; resize: vertical; }
+        
+        .alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
+        .empty-state { text-align: center; padding: 60px; color: var(--texto-secundario); }
+        .loading { display: flex; justify-content: center; padding: 40px; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--borda); border-top-color: var(--verde-neon); border-radius: 50%; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+        /* Mobile Menu */
+        .mobile-menu-btn { display: none; position: fixed; top: 15px; left: 15px; z-index: 1001; background: var(--verde-neon); color: var(--fundo-principal); border: none; width: 45px; height: 45px; border-radius: 10px; font-size: 1.5rem; cursor: pointer; box-shadow: 0 4px 15px rgba(0,255,65,0.3); }
+        .sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 999; }
+        @media (max-width: 768px) { .mobile-menu-btn { display: flex; align-items: center; justify-content: center; } .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; z-index: 1000; } .sidebar.active { transform: translateX(0); } .sidebar-overlay.active { display: block; } .main { margin-left: 0; } .stats-row { grid-template-columns: 1fr 1fr; } .treino-card { flex-direction: column; text-align: center; } .treino-detalhes { justify-content: center; flex-wrap: wrap; } }
+    
+        .logo-img { width: 45px; height: 45px; border-radius: 50%; filter: drop-shadow(0 0 10px rgba(0, 255, 65, 0.5)); }
+    </style>
+</head>
+<body x-data="meusTreinos()" x-init="init()">
+    <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <img src="logo.png" alt="Team GN" class="logo-img">
+                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
+                </div>
+            </div>
+            <nav class="nav-section">
+                <a href="atleta-dashboard.html" class="nav-item"><span>🏠</span> Meu Painel</a>
+                <a href="atleta-treinos.html" class="nav-item active"><span>💪</span> Meus Treinos</a>
+                <a href="atleta-planilha.html" class="nav-item"><span>📋</span> Minha Planilha</a>
+                <a href="atleta-corridas.html" class="nav-item"><span>🏁</span> Minhas Corridas</a>
+                <a href="atleta-perfil.html" class="nav-item"><span>👤</span> Meu Perfil</a>
+            </nav>
+        </aside>
+        
+        <main class="main">
+            <div class="header">
+                <h1 class="page-title">💪 Meus Treinos</h1>
+                <button class="btn btn-primary" @click="abrirModal()">➕ Novo Treino</button>
+            </div>
+            
+            <div class="alert alert-success" x-show="sucesso" x-text="sucesso" x-transition></div>
+            
+            <!-- Stats -->
+            <div class="stats-row">
+                <div class="stat-mini">
+                    <div class="stat-mini-value" x-text="stats.total"></div>
+                    <div class="stat-mini-label">Treinos Total</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" x-text="stats.km_total + ' km'"></div>
+                    <div class="stat-mini-label">KM Total</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" x-text="stats.mes"></div>
+                    <div class="stat-mini-label">Este Mês</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-value" x-text="stats.km_mes + ' km'"></div>
+                    <div class="stat-mini-label">KM no Mês</div>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="filters">
+                <select class="filter-select" x-model="filtro.mes" @change="filtrar()">
+                    <option value="">Todos os meses</option>
+                    <option value="0">Janeiro</option>
+                    <option value="1">Fevereiro</option>
+                    <option value="2">Março</option>
+                    <option value="3">Abril</option>
+                    <option value="4">Maio</option>
+                    <option value="5">Junho</option>
+                    <option value="6">Julho</option>
+                    <option value="7">Agosto</option>
+                    <option value="8">Setembro</option>
+                    <option value="9">Outubro</option>
+                    <option value="10">Novembro</option>
+                    <option value="11">Dezembro</option>
+                </select>
+                <select class="filter-select" x-model="filtro.tipo" @change="filtrar()">
+                    <option value="">Todos os tipos</option>
+                    <template x-for="tipo in tiposTreino" :key="tipo.id">
+                        <option :value="tipo.id" x-text="tipo.nome"></option>
+                    </template>
+                </select>
+            </div>
+            
+            <div class="loading" x-show="loading"><div class="spinner"></div></div>
+            
+            <!-- Lista de treinos -->
+            <div class="treinos-list" x-show="!loading">
+                <template x-for="treino in treinosFiltrados" :key="treino.id">
+                    <div class="treino-card">
+                        <div class="treino-data">
+                            <div class="dia" x-text="new Date(treino.data_treino + 'T00:00:00').getDate()"></div>
+                            <div class="mes" x-text="meses[new Date(treino.data_treino + 'T00:00:00').getMonth()]"></div>
+                        </div>
+                        <div class="treino-info">
+                            <div class="treino-tipo">
+                                <span x-text="treino.tipos_treino?.nome || 'Treino'"></span>
+                                <span class="badge" x-text="treino.intensidade || 'moderada'"></span>
+                            </div>
+                            <div class="treino-detalhes">
+                                <div class="treino-detalhe">📏 <span x-text="treino.distancia_km + ' km'"></span></div>
+                                <div class="treino-detalhe" x-show="treino.duracao_minutos">⏱️ <span x-text="treino.duracao_minutos + ' min'"></span></div>
+                                <div class="treino-detalhe" x-show="treino.pace">🏃 <span x-text="treino.pace + '/km'"></span></div>
+                                <div class="treino-detalhe" x-show="treino.fc_media">❤️ <span x-text="treino.fc_media + ' bpm'"></span></div>
+                            </div>
+                            <div class="treino-obs" x-show="treino.observacoes" x-text="treino.observacoes"></div>
+                        </div>
+                        <div class="treino-actions">
+                            <button class="btn btn-secondary btn-sm" @click="editar(treino)">✏️</button>
+                            <button class="btn btn-secondary btn-sm" @click="excluir(treino)" style="color: var(--erro);">🗑️</button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+            
+            <div class="empty-state" x-show="!loading && treinosFiltrados.length === 0">
+                <h3>Nenhum treino registrado</h3>
+                <p>Comece registrando seu primeiro treino!</p>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" x-show="modalAberto" x-transition @click.self="modalAberto = false">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" x-text="treinoAtual.id ? 'Editar Treino' : 'Novo Treino'"></h2>
+                <button class="modal-close" @click="modalAberto = false">&times;</button>
+            </div>
+            <form @submit.prevent="salvar()">
+                <div class="modal-body">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Data *</label>
+                            <input type="date" class="form-input" x-model="treinoAtual.data_treino" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tipo</label>
+                            <select class="form-select" x-model="treinoAtual.tipo_treino_id">
+                                <option value="">Selecione</option>
+                                <template x-for="tipo in tiposTreino" :key="tipo.id">
+                                    <option :value="tipo.id" x-text="tipo.nome"></option>
+                                </template>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Distância (km) *</label>
+                            <input type="number" step="0.01" class="form-input" x-model="treinoAtual.distancia_km" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Duração (min)</label>
+                            <input type="number" class="form-input" x-model="treinoAtual.duracao_minutos">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Pace (min/km)</label>
+                            <input type="text" class="form-input" x-model="treinoAtual.pace" placeholder="5:30">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">FC Média</label>
+                            <input type="number" class="form-input" x-model="treinoAtual.fc_media">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Observações</label>
+                        <textarea class="form-textarea" x-model="treinoAtual.observacoes"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="modalAberto = false">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        function meusTreinos() {
+            return {
+                usuario: null, treinos: [], treinosFiltrados: [], tiposTreino: [], loading: true,
+                modalAberto: false, treinoAtual: {}, sucesso: '',
+                filtro: { mes: '', tipo: '' },
+                stats: { total: 0, km_total: 0, mes: 0, km_mes: 0 },
+                meses: ['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'],
+                
+                async init() {
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (!session) { window.location.href = 'login.html'; return; }
+                    this.usuario = { id: session.user.id };
+                    await this.carregarTipos();
+                    await this.carregar();
+                },
+                
+                async carregarTipos() {
+                    const { data } = await supabase.from('tipos_treino').select('*').eq('ativo', true).order('nome');
+                    this.tiposTreino = data || [];
+                },
+                
+                async carregar() {
+                    this.loading = true;
+                    const { data } = await supabase.from('treinos').select('*, tipos_treino(nome)').eq('usuario_id', this.usuario.id).order('data_treino', { ascending: false });
+                    this.treinos = data || [];
+                    this.calcularStats();
+                    this.filtrar();
+                    this.loading = false;
+                },
+                
+                calcularStats() {
+                    const mesAtual = new Date().getMonth();
+                    const anoAtual = new Date().getFullYear();
+                    this.stats.total = this.treinos.length;
+                    this.stats.km_total = Math.round(this.treinos.reduce((a, t) => a + (parseFloat(t.distancia_km) || 0), 0));
+                    const treinosMes = this.treinos.filter(t => { const d = new Date(t.data_treino); return d.getMonth() === mesAtual && d.getFullYear() === anoAtual; });
+                    this.stats.mes = treinosMes.length;
+                    this.stats.km_mes = Math.round(treinosMes.reduce((a, t) => a + (parseFloat(t.distancia_km) || 0), 0));
+                },
+                
+                filtrar() {
+                    let resultado = [...this.treinos];
+                    if (this.filtro.mes !== '') {
+                        resultado = resultado.filter(t => new Date(t.data_treino).getMonth() === parseInt(this.filtro.mes));
+                    }
+                    if (this.filtro.tipo) {
+                        resultado = resultado.filter(t => t.tipo_treino_id === this.filtro.tipo);
+                    }
+                    this.treinosFiltrados = resultado;
+                },
+                
+                abrirModal(treino = null) {
+                    this.treinoAtual = treino ? {...treino} : { data_treino: new Date().toISOString().split('T')[0] };
+                    this.modalAberto = true;
+                },
+                
+                editar(treino) { this.abrirModal(treino); },
+                
+                async salvar() {
+                    const dados = {
+                        usuario_id: this.usuario.id,
+                        data_treino: this.treinoAtual.data_treino,
+                        tipo_treino_id: this.treinoAtual.tipo_treino_id || null,
+                        distancia_km: parseFloat(this.treinoAtual.distancia_km),
+                        duracao_minutos: this.treinoAtual.duracao_minutos ? parseInt(this.treinoAtual.duracao_minutos) : null,
+                        pace: this.treinoAtual.pace || null,
+                        fc_media: this.treinoAtual.fc_media ? parseInt(this.treinoAtual.fc_media) : null,
+                        observacoes: this.treinoAtual.observacoes || null
+                    };
+                    
+                    if (this.treinoAtual.id) {
+                        await supabase.from('treinos').update(dados).eq('id', this.treinoAtual.id);
+                    } else {
+                        await supabase.from('treinos').insert(dados);
+                    }
+                    
+                    this.modalAberto = false;
+                    this.sucesso = 'Treino salvo!';
+                    await this.carregar();
+                    setTimeout(() => this.sucesso = '', 3000);
+                },
+                
+                async excluir(treino) {
+                    if (!confirm('Excluir este treino?')) return;
+                    await supabase.from('treinos').delete().eq('id', treino.id);
+                    this.sucesso = 'Treino excluído!';
+                    await this.carregar();
+                    setTimeout(() => this.sucesso = '', 3000);
+                }
+            ,
+                async logout() {
+                    try {
+                        const { error } = await supabase.auth.signOut();
+                        if (error) {
+                            console.error('Erro ao fazer logout:', error);
+                            alert('Erro ao sair: ' + error.message);
+                        } else {
+                            localStorage.removeItem('selectedRole');
+                            window.location.href = 'login.html';
+                        }
+                    } catch (error) {
+                        console.error('Erro no logout:', error);
+                        alert('Erro ao sair. Tente novamente.');
+                    }
+                }
+
+            };
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+</body>
+</html>

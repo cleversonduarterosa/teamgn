@@ -739,7 +739,7 @@
                     <span class="icon">⚙️</span>
                     <span>Configurações</span>
                 </a>
-                <a href="index.html" class="nav-item">
+                <a href="index.html" target="_blank" class="nav-item">
                     <span class="icon">🌐</span>
                     <span>Ver Site</span>
                 </a>
@@ -928,7 +928,7 @@
                         .single();
                     
                     if (perfil?.papel !== 'admin') {
-                        window.location.href = 'painel-atleta.html';
+                        window.location.href = 'atleta-dashboard.html';
                         return;
                     }
                     

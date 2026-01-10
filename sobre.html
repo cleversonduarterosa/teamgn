@@ -118,6 +118,13 @@
         
         /* Responsivo */
         @media (max-width: 992px) {
+            .hero { 
+                min-height: 80vh;
+                padding: 80px 20px 40px;
+                background-attachment: scroll;
+                background-position: center center;
+                background-size: cover;
+            }
             .nav-links { 
                 display: none;
                 position: absolute;
@@ -157,41 +164,8 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <nav class="nav">
-            <a href="index.html" class="logo">
-                <img src="logo.png" alt="Team GN" class="logo-img">
-                <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
-            </a>
-                        <ul class="nav-links" id="nav-links">
-                <li><a href="index.html">INÍCIO</a></li>
-                <li><a href="index.html#corridas">CORRIDAS</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleDropdown(event, this); return false;">EQUIPE <span class="arrow">▼</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="sobre.html">Sobre Nós</a></li>
-                        <li><a href="index.html#atletas">Atletas</a></li>
-                        <li><a href="galeria.html">Galeria</a></li>
-                    </ul>
-                </li>
-                <li><a href="index.html#ranking">RANKING</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleDropdown(event, this); return false;">CONTATO <span class="arrow">▼</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="contato.html">Fale Conosco</a></li>
-                        <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
-                    </ul>
-                </li>
-                <li><a href="login.html" class="btn-entrar">ENTRAR</a></li>
-            </ul>
-            
-            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
+    <div id="header-mount"></div>
+    
     
     <section class="hero">
         <h1>Transformar vidas por meio do <span>esporte</span></h1>
@@ -268,5 +242,6 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="header-menu.js"></script>
 </body>
 </html>

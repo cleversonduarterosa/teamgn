@@ -53,7 +53,21 @@
         .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1); }
         .form-textarea { min-height: 150px; resize: vertical; }
         
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 1rem; font-weight: 700; cursor: pointer; transition: all 0.3s; background: var(--verde-neon); color: var(--fundo-principal); }
+        .btn { 
+            width: 100%; 
+            padding: 16px; 
+            border: none; 
+            border-radius: 8px; 
+            font-family: 'Montserrat'; 
+            font-size: 1rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.3s; 
+            background: var(--verde-neon); 
+            color: var(--fundo-principal);
+            position: relative;
+            z-index: 1;
+        }
         .btn:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.4); transform: translateY(-2px); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         
@@ -169,41 +183,8 @@
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 </head>
 <body x-data="contato()">
-    <header class="header">
-        <nav class="nav">
-            <a href="index.html" class="logo">
-                <img src="logo.png" alt="Team GN" class="logo-img">
-                <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
-            </a>
-                                    <ul class="nav-links" id="nav-links">
-                <li><a href="index.html">INÍCIO</a></li>
-                <li><a href="index.html#corridas">CORRIDAS</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleDropdown(event, this); return false;">EQUIPE <span class="arrow">▼</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="sobre.html">Sobre Nós</a></li>
-                        <li><a href="index.html#atletas">Atletas</a></li>
-                        <li><a href="galeria.html">Galeria</a></li>
-                    </ul>
-                </li>
-                <li><a href="index.html#ranking">RANKING</a></li>
-                <li class="dropdown">
-                    <a href="#" onclick="toggleDropdown(event, this); return false;">CONTATO <span class="arrow">▼</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a href="contato.html">Fale Conosco</a></li>
-                        <li><a href="https://wa.me/5533999999999" target="_blank">WhatsApp</a></li>
-                    </ul>
-                </li>
-                <li><a href="login.html" class="btn-entrar">ENTRAR</a></li>
-            </ul>
-            
-            <div class="menu-toggle" id="menu-toggle" onclick="toggleMenu()">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-        </nav>
-    </header>
+    <div id="header-mount"></div>
+    
     
     <section class="hero">
         <h1>Entre em <span>Contato</span></h1>
@@ -370,5 +351,6 @@
             }
         });
     </script>
+    <script src="header-menu.js"></script>
 </body>
 </html>
