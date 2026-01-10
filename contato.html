@@ -4,272 +4,177 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contato - Team GN</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-    
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
     <style>
-        :root { 
-            --verde-neon: #00FF41; 
-            --verde-primario: #2E7D32; 
-            --fundo-principal: #0A1A0F; 
-            --fundo-card: #0D2818; 
-            --fundo-input: #122E1C; 
-            --texto-principal: #E6EDF3; 
-            --texto-secundario: #8B949E; 
-            --borda: #1E4D2B; 
-            --sucesso: #3FB950; 
-            --erro: #F85149; 
-        }
-
+        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-header: rgba(10, 26, 15, 0.95); --fundo-input: #122E1C; --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; --sucesso: #3FB950; --erro: #F85149; }
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        [x-cloak] { display: none !important; }
-
-        body { 
-            font-family: 'Open Sans', sans-serif; 
-            background: var(--fundo-principal); 
-            color: var(--texto-principal); 
-            line-height: 1.6; 
-        }
-
-        /* Navbar Styles */
-        nav {
-            background: rgba(10, 26, 15, 0.95);
-            padding: 20px 0;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--borda);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .logo { font-family: 'Montserrat', sans-serif; font-weight: 900; color: var(--verde-neon); font-size: 1.5rem; text-decoration: none; }
+        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
         
-        .nav-links { display: flex; gap: 30px; list-style: none; }
-        .nav-links a { color: var(--texto-principal); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--verde-neon); }
-
-        /* Contact Section */
-        .contact-section { padding: 80px 20px; max-width: 1000px; margin: 0 auto; }
+        /* REMOVER LINHA AZUL DO LOGO */
+        .logo, .logo-text, .logo img, .logo span, .logo a { text-decoration: none !important; border: none !important; outline: none !important; }
+        a { text-decoration: none; }
         
-        .contact-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.5fr;
-            gap: 40px;
-            margin-top: 40px;
-        }
-
-        .contact-info {
-            background: var(--fundo-card);
-            padding: 40px;
-            border-radius: 16px;
-            border: 1px solid var(--borda);
-        }
-
-        .contact-card {
-            background: var(--fundo-card);
-            padding: 40px;
-            border-radius: 16px;
-            border: 1px solid var(--borda);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-        }
-
+        /* HERO */
+        .hero { padding: 140px 20px 60px; text-align: center; }
+        .hero h1 { font-family: 'Montserrat'; font-size: 2.5rem; font-weight: 900; margin-bottom: 15px; }
+        .hero h1 span { color: var(--verde-neon); }
+        .hero p { color: var(--texto-secundario); max-width: 600px; margin: 0 auto; }
+        
+        /* CONTAINER */
+        .container { max-width: 1000px; margin: 0 auto; padding: 0 20px 80px; }
+        .contato-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+        
+        /* INFO CARDS */
+        .contato-info { display: flex; flex-direction: column; gap: 25px; }
+        .info-card { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 25px; transition: all 0.3s; }
+        .info-card:hover { border-color: var(--verde-neon); }
+        .info-card-icon { font-size: 2rem; margin-bottom: 15px; }
+        .info-card-title { font-family: 'Montserrat'; font-size: 1.1rem; font-weight: 700; margin-bottom: 8px; }
+        .info-card-text { color: var(--texto-secundario); }
+        .info-card-link { color: var(--verde-neon); text-decoration: none; font-weight: 600; }
+        .info-card-link:hover { text-decoration: underline; }
+        
+        /* FORM */
+        .contato-form { background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 16px; padding: 35px; }
+        .form-title { font-family: 'Montserrat'; font-size: 1.3rem; font-weight: 700; margin-bottom: 25px; }
         .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 8px; text-transform: uppercase; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--texto-secundario); margin-bottom: 8px; }
+        .form-input, .form-select, .form-textarea { width: 100%; padding: 14px; background: var(--fundo-input); border: 1px solid var(--borda); border-radius: 8px; color: var(--texto-principal); font-family: inherit; font-size: 1rem; transition: all 0.3s; }
+        .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); box-shadow: 0 0 0 3px rgba(0, 255, 65, 0.1); }
+        .form-textarea { min-height: 150px; resize: vertical; }
         
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 12px 16px;
-            background: var(--fundo-input);
-            border: 1px solid var(--borda);
-            border-radius: 8px;
-            color: var(--texto-principal);
-            font-size: 1rem;
-            font-family: inherit;
-        }
-
-        .form-input:focus, .form-textarea:focus { outline: none; border-color: var(--verde-neon); }
-        .form-textarea { height: 150px; resize: vertical; }
-
-        .btn {
-            width: 100%;
-            padding: 15px;
-            border: none;
-            border-radius: 8px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn-primary { background: var(--verde-neon); color: var(--fundo-principal); }
-        .btn-primary:hover { transform: translateY(-2px); filter: brightness(1.1); }
-        .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem; }
+        /* BOTÃO */
+        .btn { width: 100%; min-height: 55px; padding: 16px; border: none; border-radius: 8px; font-family: 'Montserrat'; font-size: 1rem; font-weight: 800; text-transform: uppercase; cursor: pointer; background: var(--verde-neon); color: #0A1A0F; transition: all 0.3s; }
+        .btn:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.4); transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        
+        /* ALERTA */
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; }
+        .alert.show { display: block; }
         .alert-success { background: rgba(63, 185, 80, 0.1); border: 1px solid var(--sucesso); color: var(--sucesso); }
-        .alert-error { background: rgba(248, 81, 73, 0.1); border: 1px solid var(--erro); color: var(--erro); }
-
-        .spinner {
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(0,0,0,0.1);
-            border-top: 3px solid currentColor;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        
+        /* FOOTER */
+        .footer { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 40px 20px; text-align: center; color: var(--texto-secundario); }
+        
+        /* RESPONSIVO */
         @media (max-width: 768px) {
-            .contact-grid { grid-template-columns: 1fr; }
+            .contato-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
-<body x-data="contatoApp()">
-
-    <nav>
-        <div class="nav-container">
-            <a href="index.html" class="logo">TEAM GN</a>
-            <ul class="nav-links">
-                <li><a href="index.html">Início</a></li>
-                <li><a href="contato.html" style="color: var(--verde-neon)">Contato</a></li>
-                <li><a href="login.html">Login</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <section class="contact-section">
-        <div style="text-align: center; margin-bottom: 50px;">
-            <h1 style="font-family: 'Montserrat', sans-serif; font-size: 2.5rem; margin-bottom: 15px;">Fale Conosco</h1>
-            <p style="color: var(--texto-secundario);">Dúvidas, sugestões ou suporte? Nossa equipe está pronta para ajudar.</p>
-        </div>
-
-        <div class="contact-grid">
-            <div class="contact-info">
-                <h3 style="margin-bottom: 25px; color: var(--verde-neon);">Canais de Atendimento</h3>
-                <div style="margin-bottom: 20px;">
-                    <p style="font-size: 0.8rem; color: var(--texto-secundario); text-transform: uppercase;">E-mail</p>
-                    <p>contato@teamgn.com.br</p>
+<body>
+    <!-- MENU SERÁ CARREGADO AQUI PELO header-menu.js -->
+    <div id="header-mount"></div>
+    
+    <section class="hero">
+        <h1>Entre em <span>Contato</span></h1>
+        <p>Tem alguma dúvida ou quer fazer parte da nossos atletas? Fale conosco!</p>
+    </section>
+    
+    <section class="container">
+        <div class="contato-grid">
+            <div class="contato-info">
+                <div class="info-card">
+                    <div class="info-card-icon">📍</div>
+                    <div class="info-card-title">Localização</div>
+                    <div class="info-card-text">Governador Valadares - MG</div>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <p style="font-size: 0.8rem; color: var(--texto-secundario); text-transform: uppercase;">WhatsApp</p>
-                    <p>(11) 99999-9999</p>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">📧</div>
+                    <div class="info-card-title">E-mail</div>
+                    <a href="mailto:contato@teamgn.com.br" class="info-card-link">contato@teamgn.com.br</a>
                 </div>
-                <div style="margin-bottom: 20px;">
-                    <p style="font-size: 0.8rem; color: var(--texto-secundario); text-transform: uppercase;">Horário</p>
-                    <p>Segunda à Sexta: 08h às 18h</p>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">📱</div>
+                    <div class="info-card-title">WhatsApp</div>
+                    <a href="https://wa.me/5533999999999" target="_blank" class="info-card-link">(33) 99999-9999</a>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-icon">⏰</div>
+                    <div class="info-card-title">Horários de Treino</div>
+                    <div class="info-card-text">Segunda a Sexta: 6h e 18h<br>Sábados: 7h (Treino longo)</div>
                 </div>
             </div>
-
-            <div class="contact-card">
-                <div x-show="sucesso" x-cloak class="alert alert-success">
-                    ✨ Mensagem enviada com sucesso! Responderemos em breve.
+            
+            <div class="contato-form">
+                <h2 class="form-title">Envie uma mensagem</h2>
+                
+                <div id="sucesso-msg" class="alert alert-success">
+                    ✅ Mensagem enviada com sucesso! Responderemos em breve.
                 </div>
-
-                <div x-show="erro" x-cloak class="alert alert-error" x-text="erro"></div>
-
-                <form @submit.prevent="enviar">
+                
+                <form id="form-contato">
                     <div class="form-group">
-                        <label class="form-label">Nome Completo</label>
-                        <input type="text" class="form-input" x-model="form.nome" required placeholder="Seu nome">
+                        <label class="form-label">Nome completo *</label>
+                        <input type="text" class="form-input" id="nome" required placeholder="Seu nome">
                     </div>
-
+                    
                     <div class="form-group">
-                        <label class="form-label">E-mail</label>
-                        <input type="email" class="form-input" x-model="form.email" required placeholder="seu@email.com">
+                        <label class="form-label">E-mail *</label>
+                        <input type="email" class="form-input" id="email" required placeholder="seu@email.com">
                     </div>
-
+                    
                     <div class="form-group">
-                        <label class="form-label">Assunto</label>
-                        <input type="text" class="form-input" x-model="form.assunto" required placeholder="Como podemos ajudar?">
+                        <label class="form-label">Telefone</label>
+                        <input type="tel" class="form-input" id="telefone" placeholder="(00) 00000-0000">
                     </div>
-
+                    
                     <div class="form-group">
-                        <label class="form-label">Mensagem</label>
-                        <textarea class="form-textarea" x-model="form.mensagem" required placeholder="Escreva sua mensagem aqui..."></textarea>
+                        <label class="form-label">Assunto *</label>
+                        <select class="form-select" id="assunto" required>
+                            <option value="">Selecione</option>
+                            <option value="Quero fazer parte da equipe">Quero fazer parte da equipe</option>
+                            <option value="Informações sobre treinos">Informações sobre treinos</option>
+                            <option value="Parcerias">Parcerias</option>
+                            <option value="Dúvidas">Dúvidas</option>
+                            <option value="Outro">Outro</option>
+                        </select>
                     </div>
-
-                    <button type="submit" class="btn btn-primary" :disabled="loading">
-                        <span class="spinner" x-show="loading" x-cloak></span>
-                        <span x-text="loading ? 'Enviando...' : '🚀 Enviar Mensagem'"></span>
-                    </button>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mensagem *</label>
+                        <textarea class="form-textarea" id="mensagem" required placeholder="Escreva sua mensagem..."></textarea>
+                    </div>
+                    
+                    <button type="submit" id="btn-enviar" class="btn">🚀 ENVIAR MENSAGEM</button>
                 </form>
             </div>
         </div>
     </section>
+    
+    <footer class="footer">
+        <p>© 2026 Team GN - Saúde & Performance. Todos os direitos reservados.</p>
+    </footer>
 
+    <!-- JAVASCRIPT DO FORMULÁRIO -->
     <script>
-        function contatoApp() {
-            // Inicialização segura do Supabase
-            const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
-            const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const form = document.getElementById('form-contato');
+        const btnEnviar = document.getElementById('btn-enviar');
+        const sucessoMsg = document.getElementById('sucesso-msg');
+        
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            let supabase = null;
-            if (window.supabase) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-            }
-
-            return {
-                form: { nome: '', email: '', assunto: '', mensagem: '' },
-                loading: false,
-                sucesso: false,
-                erro: '',
-
-                async enviar() {
-                    if (!supabase) {
-                        this.erro = "Erro de conexão. Verifique sua internet.";
-                        return;
-                    }
-
-                    this.loading = true;
-                    this.erro = '';
-                    this.sucesso = false;
-
-                    try {
-                        // Tenta inserir na tabela 'contatos' (se ela existir)
-                        const { error } = await supabase.from('contatos').insert([
-                            { 
-                                nome: this.form.nome, 
-                                email: this.form.email, 
-                                assunto: this.form.assunto, 
-                                mensagem: this.form.mensagem,
-                                data_envio: new Date().toISOString()
-                            }
-                        ]);
-
-                        if (error && !error.message.includes('not found')) throw error;
-
-                        this.sucesso = true;
-                        this.form = { nome: '', email: '', assunto: '', mensagem: '' };
-
-                    } catch (e) {
-                        console.error(e);
-                        this.erro = "Ocorreu um erro ao enviar. Tente novamente mais tarde.";
-                    } finally {
-                        this.loading = false;
-                    }
-                }
-            }
-        }
+            btnEnviar.disabled = true;
+            btnEnviar.textContent = 'ENVIANDO...';
+            
+            setTimeout(function() {
+                sucessoMsg.classList.add('show');
+                form.reset();
+                btnEnviar.disabled = false;
+                btnEnviar.textContent = '🚀 ENVIAR MENSAGEM';
+                
+                setTimeout(function() {
+                    sucessoMsg.classList.remove('show');
+                }, 5000);
+            }, 2000);
+        });
     </script>
+    
+    <!-- HEADER-MENU.JS -->
+    <script src="header-menu.js"></script>
 </body>
 </html>
