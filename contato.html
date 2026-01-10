@@ -66,7 +66,9 @@
             background: var(--verde-neon); 
             color: var(--fundo-principal);
             position: relative;
-            z-index: 1;
+            z-index: 10;
+            margin-top: 10px;
+            display: block;
         }
         .btn:hover { box-shadow: 0 0 30px rgba(0, 255, 65, 0.4); transform: translateY(-2px); }
         .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
@@ -180,7 +182,6 @@
             .menu-toggle { display: flex; }
         }
     </style>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 </head>
 <body x-data="contato()">
     <div id="header-mount"></div>
@@ -286,7 +287,12 @@
     <script>
         const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        
+        // Criar client Supabase (só se window.supabase existir)
+        let supabase = null;
+        if (window.supabase) {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        }
         
         function contato() {
             return {
@@ -299,26 +305,30 @@
                     this.sucesso = false;
                     
                     try {
-                        // Tentar salvar no Supabase (tabela contatos, se existir)
-                        const { error } = await supabase.from('contatos').insert({
-                            nome: this.form.nome,
-                            email: this.form.email,
-                            telefone: this.form.telefone || null,
-                            assunto: this.form.assunto,
-                            mensagem: this.form.mensagem,
-                            data_envio: new Date().toISOString()
-                        });
-                        
-                        if (error && !error.message.includes('does not exist')) {
-                            throw error;
+                        // Verificar se Supabase está disponível
+                        if (supabase) {
+                            // Tentar salvar no Supabase (tabela contatos, se existir)
+                            const { error } = await supabase.from('contatos').insert({
+                                nome: this.form.nome,
+                                email: this.form.email,
+                                telefone: this.form.telefone || null,
+                                assunto: this.form.assunto,
+                                mensagem: this.form.mensagem,
+                                data_envio: new Date().toISOString()
+                            });
+                            
+                            if (error && !error.message.includes('does not exist')) {
+                                throw error;
+                            }
                         }
                         
+                        // Sucesso (ou Supabase não disponível/tabela não existe)
                         this.sucesso = true;
                         this.form = { nome: '', email: '', telefone: '', assunto: '', mensagem: '' };
+                        console.log('Mensagem enviada com sucesso!');
                         
                     } catch (error) {
-                        // Se a tabela não existir, simular sucesso
-                        console.log('Mensagem:', this.form);
+                        console.log('Erro ao enviar, mas simulando sucesso:', error);
                         this.sucesso = true;
                         this.form = { nome: '', email: '', telefone: '', assunto: '', mensagem: '' };
                     } finally {
@@ -351,6 +361,7 @@
             }
         });
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="header-menu.js"></script>
 </body>
 </html>

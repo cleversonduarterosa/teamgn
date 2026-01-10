@@ -161,41 +161,12 @@
     </style>
 </head>
 <body>
+    <div id="admin-sidebar-mount"></div>
     <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
     
     <div class="layout">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="logo.png" alt="Team GN" class="logo-img">
-                    <div class="logo-text">
-                        <span class="nome">TEAM GN</span><br>
-                        <span class="subtitulo">Saúde & Performance</span>
-                        <span class="version-tag">v2.4</span>
-                    </div>
-                </div>
-            </div>
-            <nav class="nav-section">
-                <div class="nav-title">Principal</div>
-                <a href="admin-dashboard.html" class="nav-item">📊 Dashboard</a>
-                <a href="admin-corridas.html" class="nav-item">🏁 Corridas</a>
-                <a href="admin-atletas.html" class="nav-item active">👥 Atletas</a>
-                <a href="admin-planilhas.html" class="nav-item">📋 Planilhas</a>
-            </nav>
-            <nav class="nav-section">
-                <div class="nav-title">Conteúdo</div>
-                <a href="admin-galeria.html" class="nav-item">📸 Galeria</a>
-                <a href="admin-conquistas.html" class="nav-item">🏆 Conquistas</a>
-                <a href="admin-pelotoes.html" class="nav-item">👕 Pelotões</a>
-            </nav>
-            <nav class="nav-section">
-                <div class="nav-title">Sistema</div>
-                <a href="admin-config.html" class="nav-item">⚙️ Configurações</a>
-                <a href="index.html" target="_blank" class="nav-item">🌐 Ver Site</a>
-                <a href="#" class="nav-item" onclick="logout()">🚪 Sair</a>
-            </nav>
-        </aside>
+        
 
         <main class="main">
             <div class="header">
@@ -627,5 +598,6 @@
             }
         }
     </script>
+    <script src="admin-sidebar.js"></script>
 </body>
 </html>

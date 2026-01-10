@@ -115,25 +115,13 @@
     </style>
 </head>
 <body>
+    <div id="admin-sidebar-mount"></div>
     <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
 <body x-data="adminConfig()" x-init="init()">
+    <div id="admin-sidebar-mount"></div>
     <div class="layout">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="logo.png" alt="Team GN" class="logo-img">
-                    <div class="logo-text"><div class="nome">TEAM GN</div><div class="subtitulo">Saúde & Performance</div></div>
-                </div>
-            </div>
-            <nav class="nav-section">
-                <a href="admin-dashboard.html" class="nav-item"><span>📊</span> Dashboard</a>
-                <a href="admin-corridas.html" class="nav-item"><span>🏁</span> Corridas</a>
-                <a href="admin-atletas.html" class="nav-item"><span>👥</span> Atletas</a>
-                <a href="admin-planilhas.html" class="nav-item"><span>📋</span> Planilhas</a>
-                <a href="admin-config.html" class="nav-item active"><span>⚙️</span> Configurações</a>
-            </nav>
-        </aside>
+        
         
         <main class="main">
             <div class="header"><h1 class="page-title">⚙️ Configurações do Site</h1></div>
@@ -228,5 +216,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 <script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+    <script src="admin-sidebar.js"></script>
 </body>
 </html>

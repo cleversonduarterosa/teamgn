@@ -670,85 +670,20 @@
     </style>
 </head>
 <body>
+    <div id="admin-sidebar-mount"></div>
     <button class="mobile-menu-btn" onclick="toggleSidebar()">☰</button>
-    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
 <body x-data="adminDashboard()" x-init="init()">
+    <div id="admin-sidebar-mount"></div>
     <!-- Mobile menu toggle -->
-    <button class="menu-toggle" @click="sidebarOpen = !sidebarOpen">
-        <span></span>
-        <span></span>
-        <span></span>
-    </button>
+    
     
     <!-- Sidebar overlay -->
-    <div class="sidebar-overlay" :class="{ 'open': sidebarOpen }" @click="sidebarOpen = false"></div>
+    
     
     <div class="layout">
         <!-- Sidebar -->
-        <aside class="sidebar" :class="{ 'open': sidebarOpen }">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <img src="logo.png" alt="Team GN" class="logo-img">
-                    <div class="logo-text">
-                        <div class="nome">TEAM GN</div>
-                        <div class="subtitulo">Saúde & Performance</div>
-                    </div>
-                </div>
-                <div class="admin-badge">Admin</div>
-            </div>
-            
-            <nav class="nav-section">
-                <div class="nav-section-title">Principal</div>
-                <a href="admin-dashboard.html" class="nav-item active">
-                    <span class="icon">📊</span>
-                    <span>Dashboard</span>
-                </a>
-                <a href="admin-corridas.html" class="nav-item">
-                    <span class="icon">🏁</span>
-                    <span>Corridas</span>
-                </a>
-                <a href="admin-atletas.html" class="nav-item">
-                    <span class="icon">👥</span>
-                    <span>Atletas</span>
-                </a>
-                <a href="admin-planilhas.html" class="nav-item">
-                    <span class="icon">📋</span>
-                    <span>Planilhas</span>
-                </a>
-            </nav>
-            
-            <nav class="nav-section">
-                <div class="nav-section-title">Conteúdo</div>
-                <a href="admin-galeria.html" class="nav-item">
-                    <span class="icon">📸</span>
-                    <span>Galeria</span>
-                </a>
-                <a href="admin-conquistas.html" class="nav-item">
-                    <span class="icon">🏆</span>
-                    <span>Conquistas</span>
-                </a>
-                <a href="admin-pelotoes.html" class="nav-item">
-                    <span class="icon">👕</span>
-                    <span>Pelotões</span>
-                </a>
-            </nav>
-            
-            <nav class="nav-section">
-                <div class="nav-section-title">Sistema</div>
-                <a href="admin-config.html" class="nav-item">
-                    <span class="icon">⚙️</span>
-                    <span>Configurações</span>
-                </a>
-                <a href="index.html" target="_blank" class="nav-item">
-                    <span class="icon">🌐</span>
-                    <span>Ver Site</span>
-                </a>
-                <a href="#" class="nav-item" @click.prevent="logout">
-                    <span class="icon">🚪</span>
-                    <span>Sair</span>
-                </a>
-            </nav>
-        </aside>
+        
         
         <!-- Main -->
         <main class="main">
@@ -1081,5 +1016,6 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
 <script>function toggleSidebar() { document.querySelector(".sidebar").classList.toggle("active"); document.querySelector(".sidebar-overlay").classList.toggle("active"); }</script>
+    <script src="admin-sidebar.js"></script>
 </body>
 </html>
