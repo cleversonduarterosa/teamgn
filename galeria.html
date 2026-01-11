@@ -172,9 +172,9 @@
     <section class="container">
         <div class="filtros">
             <button class="filtro-btn" :class="{ 'active': filtro === 'todos' }" @click="filtro = 'todos'">Todos</button>
-            <button class="filtro-btn" :class="{ 'active': filtro === 'treinos' }" @click="filtro = 'treinos'">Treinos</button>
-            <button class="filtro-btn" :class="{ 'active': filtro === 'corridas' }" @click="filtro = 'corridas'">Corridas</button>
-            <button class="filtro-btn" :class="{ 'active': filtro === 'eventos' }" @click="filtro = 'eventos'">Eventos</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'treino' }" @click="filtro = 'treino'">Treinos</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'corrida' }" @click="filtro = 'corrida'">Corridas</button>
+            <button class="filtro-btn" :class="{ 'active': filtro === 'evento' }" @click="filtro = 'evento'">Eventos</button>
         </div>
         
         <div class="galeria-grid">
@@ -188,7 +188,7 @@
                     </template>
                     <div class="galeria-overlay">
                         <div class="galeria-titulo" x-text="foto.titulo"></div>
-                        <div class="galeria-data" x-text="formatarData(foto.data_foto)"></div>
+                        <div class="galeria-data" x-text="formatarData(foto.data_upload)"></div>
                     </div>
                 </div>
             </template>
@@ -230,17 +230,8 @@
                 fotos: [], filtro: 'todos', lightboxAberto: false, fotoIndex: 0,
                 
                 async init() {
-                    const { data } = await supabase.from('galeria_fotos').select('*').eq('publica', true).eq('aprovada', true).order('data_foto', { ascending: false });
+                    const { data } = await supabase.from('galeria_fotos').select('*').eq('publica', true).eq('aprovada', true).order('data_upload', { ascending: false });
                     this.fotos = data || [];
-                    
-                    // Se não houver fotos, criar exemplos
-                    if (this.fotos.length === 0) {
-                        this.fotos = [
-                            { id: 1, titulo: 'Treino de domingo', tipo: 'treinos', data_foto: '2025-01-01', foto_url: null },
-                            { id: 2, titulo: 'Corrida 10K', tipo: 'corridas', data_foto: '2024-12-15', foto_url: null },
-                            { id: 3, titulo: 'Confraternização', tipo: 'eventos', data_foto: '2024-12-20', foto_url: null },
-                        ];
-                    }
                 },
                 
                 get fotosFiltradas() {
@@ -267,7 +258,8 @@
                 
                 formatarData(data) {
                     if (!data) return '';
-                    return new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+                    const dataObj = new Date(data);
+                    return dataObj.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
                 }
             };
         }
