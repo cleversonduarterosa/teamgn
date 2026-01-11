@@ -86,8 +86,8 @@
         
         .galeria-grid { 
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 20px; 
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
+            gap: 15px; 
             padding-bottom: 60px; 
         }
         
@@ -95,7 +95,7 @@
             position: relative; 
             border-radius: 12px; 
             overflow: hidden; 
-            aspect-ratio: 4/3; 
+            aspect-ratio: 3/2; 
             background: var(--fundo-card); 
             border: 1px solid var(--borda); 
             cursor: pointer; 
@@ -129,18 +129,19 @@
             bottom: 0; 
             left: 0; 
             right: 0; 
-            padding: 20px; 
+            padding: 15px; 
             background: linear-gradient(transparent, rgba(0,0,0,0.8)); 
         }
         
         .galeria-titulo { 
             font-family: 'Montserrat'; 
             font-weight: 700; 
-            margin-bottom: 5px; 
+            margin-bottom: 5px;
+            font-size: 0.95rem;
         }
         
         .galeria-data { 
-            font-size: 0.8rem; 
+            font-size: 0.75rem; 
             color: var(--verde-neon); 
         }
         
@@ -321,7 +322,7 @@
             const dataObj = new Date(data);
             return dataObj.toLocaleDateString('pt-BR', { 
                 day: '2-digit', 
-                month: 'short', 
+                month: 'long',  // Mês completo (janeiro, fevereiro...)
                 year: 'numeric' 
             });
         }
@@ -414,7 +415,7 @@
                     .select('*')
                     .eq('publica', true)
                     .eq('aprovada', true)
-                    .order('data_upload', { ascending: false });
+                    .order('data_upload', { ascending: false });  // Mais nova primeiro
                 
                 if (error) {
                     console.error('❌ Erro ao buscar fotos:', error);
