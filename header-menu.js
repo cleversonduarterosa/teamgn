@@ -1,6 +1,7 @@
 /**
  * TEAMGN - Header Menu Component v2.2
  * CSS EXATO do index original - Botão ENTRAR transparente com borda verde neon
+ * CORRIGIDO: Saúde & Performance abaixo de TEAM GN
  * Componente reutilizável para todas as páginas
  */
 
@@ -39,8 +40,16 @@
         
         .logo { display: flex; align-items: center; gap: 12px; }
         .logo-img { width: 50px; height: 50px; border-radius: 50%; }
-        .logo-text .nome { font-size: 1.1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat', sans-serif; }
-        .logo-text .subtitulo { font-size: 0.65rem; color: var(--texto-secundario); }
+        
+        /* CORREÇÃO: Logo Text - Coloca Saúde & Performance embaixo de TEAM GN */
+        .logo-text { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 8px; 
+            line-height: 1;
+        }
+        .logo-text .nome { font-size: 1.1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
+        .logo-text .subtitulo { font-size: 0.65rem; color: var(--texto-secundario); margin: 0; padding: 0; line-height: 1; }
         
         /* Navigation */
         .nav-links {
