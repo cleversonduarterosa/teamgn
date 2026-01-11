@@ -6,12 +6,41 @@
     <title>Ranking - Team GN</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --verde-neon: #00FF41; --verde-primario: #2E7D32; --verde-escuro: #1B5E20; --fundo-principal: #0A1A0F; --fundo-card: #0D2818; --fundo-header: rgba(10, 26, 15, 0.95); --texto-principal: #E6EDF3; --texto-secundario: #8B949E; --borda: #1E4D2B; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        html { scroll-behavior: smooth; }
-        body { font-family: 'Open Sans', sans-serif; background: var(--fundo-principal); color: var(--texto-principal); line-height: 1.6; }
-        a { text-decoration: none; color: inherit; }
+        :root { 
+            --verde-neon: #00FF41; 
+            --verde-primario: #2E7D32; 
+            --verde-escuro: #1B5E20; 
+            --fundo-principal: #0A1A0F; 
+            --fundo-card: #0D2818; 
+            --fundo-header: rgba(10, 26, 15, 0.95); 
+            --texto-principal: #E6EDF3; 
+            --texto-secundario: #8B949E; 
+            --borda: #1E4D2B; 
+        }
         
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        html { 
+            scroll-behavior: smooth; 
+        }
+        
+        body { 
+            font-family: 'Open Sans', sans-serif; 
+            background: var(--fundo-principal); 
+            color: var(--texto-principal); 
+            line-height: 1.6; 
+        }
+        
+        a { 
+            text-decoration: none; 
+            color: inherit; 
+        }
+        
+        /* HERO SECTION */
         .hero { 
             min-height: 40vh;
             display: flex; 
@@ -21,104 +50,412 @@
             padding: 150px 30px 80px;
             background: linear-gradient(135deg, rgba(10, 26, 15, 0.85) 0%, rgba(13, 40, 24, 0.9) 50%, rgba(10, 26, 15, 0.95) 100%);
         }
-        .hero-content { max-width: 800px; }
-        .section-badge { display: inline-block; background: rgba(0, 255, 65, 0.1); border: 1px solid var(--verde-neon); color: var(--verde-neon); padding: 8px 20px; border-radius: 25px; font-size: 0.85rem; font-weight: 700; margin-bottom: 20px; }
-        .hero h1 { font-family: 'Montserrat'; font-size: 3rem; font-weight: 900; margin-bottom: 20px; }
-        .hero h1 span { color: var(--verde-neon); }
-        .hero p { color: var(--texto-secundario); font-size: 1.1rem; }
         
-        .container { max-width: 1000px; margin: 0 auto; padding: 80px 30px; }
+        .hero-content { 
+            max-width: 800px; 
+        }
         
-        .ranking-table { display: flex; flex-direction: column; gap: 15px; }
-        .ranking-row { display: grid; grid-template-columns: 60px 1fr 100px 100px; gap: 20px; align-items: center; background: var(--fundo-card); border: 1px solid var(--borda); border-radius: 12px; padding: 20px; transition: all 0.3s; }
-        .ranking-row:hover { border-color: var(--verde-neon); transform: translateX(5px); }
-        .ranking-pos { font-family: 'Montserrat'; font-size: 1.5rem; font-weight: 900; text-align: center; }
-        .ranking-pos.gold { color: #FFD700; }
-        .ranking-pos.silver { color: #C0C0C0; }
-        .ranking-pos.bronze { color: #CD7F32; }
-        .ranking-atleta { display: flex; align-items: center; gap: 15px; }
-        .ranking-avatar { width: 50px; height: 50px; background: linear-gradient(135deg, var(--verde-escuro), var(--verde-primario)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 2px solid var(--verde-neon); }
-        .ranking-nome { font-weight: 700; }
-        .ranking-stat { text-align: center; }
-        .ranking-stat strong { display: block; font-family: 'Montserrat'; font-size: 1.5rem; color: var(--verde-neon); }
+        .section-badge { 
+            display: inline-block; 
+            background: rgba(0, 255, 65, 0.1); 
+            border: 1px solid var(--verde-neon); 
+            color: var(--verde-neon); 
+            padding: 8px 20px; 
+            border-radius: 25px; 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            margin-bottom: 20px; 
+        }
         
-        .footer { background: var(--fundo-card); border-top: 1px solid var(--borda); padding: 40px 30px; text-align: center; color: var(--texto-secundario); }
+        .hero h1 { 
+            font-family: 'Montserrat'; 
+            font-size: 3rem; 
+            font-weight: 900; 
+            margin-bottom: 20px; 
+        }
         
+        .hero h1 span { 
+            color: var(--verde-neon); 
+        }
+        
+        .hero p { 
+            color: var(--texto-secundario); 
+            font-size: 1.1rem; 
+        }
+        
+        /* CONTAINER */
+        .container { 
+            max-width: 1000px; 
+            margin: 0 auto; 
+            padding: 80px 30px; 
+        }
+        
+        /* TABS DE DISTÂNCIA */
+        .distance-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .tab-btn {
+            background: var(--fundo-card);
+            border: 1px solid var(--borda);
+            color: var(--texto-secundario);
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .tab-btn:hover {
+            border-color: var(--verde-neon);
+            color: var(--verde-neon);
+        }
+        
+        .tab-btn.active {
+            background: rgba(0, 255, 65, 0.1);
+            border-color: var(--verde-neon);
+            color: var(--verde-neon);
+        }
+        
+        /* RANKING TABLE */
+        .ranking-table { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+        }
+        
+        .ranking-row { 
+            display: grid; 
+            grid-template-columns: 60px 1fr 120px 100px; 
+            gap: 20px; 
+            align-items: center; 
+            background: var(--fundo-card); 
+            border: 1px solid var(--borda); 
+            border-radius: 12px; 
+            padding: 20px; 
+            transition: all 0.3s; 
+        }
+        
+        .ranking-row:hover { 
+            border-color: var(--verde-neon); 
+            transform: translateX(5px); 
+        }
+        
+        .ranking-pos { 
+            font-family: 'Montserrat'; 
+            font-size: 1.5rem; 
+            font-weight: 900; 
+            text-align: center; 
+        }
+        
+        .ranking-pos.gold { 
+            color: #FFD700; 
+        }
+        
+        .ranking-pos.silver { 
+            color: #C0C0C0; 
+        }
+        
+        .ranking-pos.bronze { 
+            color: #CD7F32; 
+        }
+        
+        .ranking-atleta { 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+        
+        .ranking-avatar { 
+            width: 50px; 
+            height: 50px; 
+            background: linear-gradient(135deg, var(--verde-escuro), var(--verde-primario)); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.2rem; 
+            border: 2px solid var(--verde-neon);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        
+        .ranking-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .ranking-nome { 
+            font-weight: 700; 
+        }
+        
+        .ranking-stat { 
+            text-align: center; 
+        }
+        
+        .ranking-stat strong { 
+            display: block; 
+            font-family: 'Montserrat'; 
+            font-size: 1.5rem; 
+            color: var(--verde-neon); 
+        }
+        
+        .ranking-stat span {
+            font-size: 0.85rem;
+            color: var(--texto-secundario);
+        }
+        
+        .loading-message {
+            text-align: center;
+            color: var(--texto-secundario);
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+        
+        .error-message {
+            text-align: center;
+            color: #ff4444;
+            padding: 40px;
+            font-size: 1.1rem;
+        }
+        
+        /* FOOTER */
+        .footer { 
+            background: var(--fundo-card); 
+            border-top: 1px solid var(--borda); 
+            padding: 40px 30px; 
+            text-align: center; 
+            color: var(--texto-secundario); 
+        }
+        
+        /* RESPONSIVE */
         @media (max-width: 768px) {
-            .hero h1 { font-size: 2rem; }
-            .ranking-row { grid-template-columns: 50px 1fr 80px; }
-            .ranking-row > *:last-child { display: none; }
+            .hero h1 { 
+                font-size: 2rem; 
+            }
+            
+            .ranking-row { 
+                grid-template-columns: 50px 1fr 100px; 
+            }
+            
+            .ranking-row > *:last-child { 
+                display: none; 
+            }
+            
+            .distance-tabs {
+                gap: 10px;
+            }
+            
+            .tab-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Header componentizado -->
     <div id="header-mount"></div>
     
+    <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
             <span class="section-badge">🏆 RANKING</span>
-            <h1>Top Atletas do <span>Mês</span></h1>
-            <p>Os corredores que mais se destacaram</p>
+            <h1>Recordes <span>Pessoais</span></h1>
+            <p>Os melhores tempos dos nossos atletas</p>
         </div>
     </section>
     
+    <!-- Container de Ranking -->
     <div class="container">
+        <!-- Tabs de Distância -->
+        <div class="distance-tabs">
+            <button class="tab-btn active" data-distance="5.0" onclick="trocarDistancia(5.0)">🏃 5K</button>
+            <button class="tab-btn" data-distance="10.0" onclick="trocarDistancia(10.0)">🏃‍♂️ 10K</button>
+            <button class="tab-btn" data-distance="21.1" onclick="trocarDistancia(21.1)">🏃‍♀️ Meia Maratona</button>
+            <button class="tab-btn" data-distance="42.2" onclick="trocarDistancia(42.2)">🏅 Maratona</button>
+        </div>
+        
+        <!-- Tabela de Ranking -->
         <div class="ranking-table" id="ranking-lista">
-            <div class="ranking-row">
-                <span class="ranking-pos gold">1º</span>
-                <div class="ranking-atleta">
-                    <div class="ranking-avatar">--</div>
-                    <span class="ranking-nome">Carregando...</span>
+            <!-- Loading inicial -->
+            <div class="loading-message">
+                <div class="ranking-row">
+                    <span class="ranking-pos gold">1º</span>
+                    <div class="ranking-atleta">
+                        <div class="ranking-avatar">--</div>
+                        <span class="ranking-nome">Carregando...</span>
+                    </div>
+                    <div class="ranking-stat"><strong>--:--</strong><span>tempo</span></div>
+                    <div class="ranking-stat"><strong>--:--</strong><span>pace</span></div>
                 </div>
-                <div class="ranking-stat"><strong>--</strong>km</div>
-                <div class="ranking-stat"><strong>--</strong>treinos</div>
             </div>
         </div>
     </div>
     
+    <!-- Footer -->
     <footer class="footer">
         <p>© 2026 <strong>Team GN</strong> - Saúde & Performance. Todos os direitos reservados. <span style="font-size: 0.75rem;">v2.7</span></p>
     </footer>
     
+    <!-- Supabase JS -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- Script de conexão e carregamento -->
     <script>
-        var SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
-        var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
-        var db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // Configuração Supabase (usando nome único para evitar conflito)
+        const SUPABASE_URL_RANKING = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_KEY_RANKING = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const dbRanking = window.supabase.createClient(SUPABASE_URL_RANKING, SUPABASE_KEY_RANKING);
         
-        async function carregarRanking() {
-            try {
-                var mesAtual = new Date().toISOString().substring(0, 7);
-                var { data, error } = await db.from('ranking_mensal').select('*, atletas(nome)').eq('mes', mesAtual).order('total_km', { ascending: false }).limit(10);
-                if (error) throw error;
-                
-                var lista = document.getElementById('ranking-lista');
-                if (data && data.length > 0) {
-                    lista.innerHTML = data.map(function(r, i) {
-                        var posClasse = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-                        var iniciais = r.atletas.nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-                        return `
-                            <div class="ranking-row">
-                                <span class="ranking-pos ${posClasse}">${i + 1}º</span>
-                                <div class="ranking-atleta">
-                                    <div class="ranking-avatar">${iniciais}</div>
-                                    <span class="ranking-nome">${r.atletas.nome}</span>
-                                </div>
-                                <div class="ranking-stat"><strong>${r.total_km || 0}</strong>km</div>
-                                <div class="ranking-stat"><strong>${r.total_treinos || 0}</strong>treinos</div>
-                            </div>
-                        `;
-                    }).join('');
-                } else {
-                    lista.innerHTML = '<p style="text-align:center;color:var(--texto-secundario);">Ranking do mês ainda não disponível.</p>';
-                }
-            } catch (err) {
-                console.error('Erro ao carregar ranking:', err);
+        // Distância atual (padrão 5K)
+        let distanciaAtual = 5.0;
+        
+        // Função para formatar tempo (de segundos para HH:MM:SS ou MM:SS)
+        function formatarTempo(segundos) {
+            if (!segundos) return '--:--';
+            
+            const horas = Math.floor(segundos / 3600);
+            const minutos = Math.floor((segundos % 3600) / 60);
+            const secs = Math.floor(segundos % 60);
+            
+            if (horas > 0) {
+                return `${horas}:${minutos.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                return `${minutos}:${secs.toString().padStart(2, '0')}`;
             }
         }
         
-        document.addEventListener('DOMContentLoaded', carregarRanking);
+        // Função para criar iniciais do nome
+        function criarIniciais(nome) {
+            if (!nome) return '??';
+            const partes = nome.trim().split(' ');
+            if (partes.length === 1) {
+                return partes[0].substring(0, 2).toUpperCase();
+            }
+            return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+        }
+        
+        // Função para criar linha do ranking
+        function criarLinhaRanking(record, posicao) {
+            const posClasse = posicao === 1 ? 'gold' : posicao === 2 ? 'silver' : posicao === 3 ? 'bronze' : '';
+            
+            const iniciais = criarIniciais(record.perfis.nome_completo);
+            
+            const avatar = record.perfis.foto_url 
+                ? `<img src="${record.perfis.foto_url}" alt="${record.perfis.nome_completo}">`
+                : iniciais;
+            
+            const tempo = formatarTempo(record.tempo);
+            const pace = record.pace || '--:--';
+            
+            return `
+                <div class="ranking-row">
+                    <span class="ranking-pos ${posClasse}">${posicao}º</span>
+                    <div class="ranking-atleta">
+                        <div class="ranking-avatar">${avatar}</div>
+                        <span class="ranking-nome">${record.perfis.nome_completo}</span>
+                    </div>
+                    <div class="ranking-stat">
+                        <strong>${tempo}</strong>
+                        <span>tempo</span>
+                    </div>
+                    <div class="ranking-stat">
+                        <strong>${pace}</strong>
+                        <span>pace/km</span>
+                    </div>
+                </div>
+            `;
+        }
+        
+        // Função principal para carregar ranking
+        async function carregarRanking(distancia) {
+            const lista = document.getElementById('ranking-lista');
+            
+            try {
+                console.log(`🏆 Buscando ranking para ${distancia}km...`);
+                
+                // Query com JOIN na tabela perfis
+                const { data, error } = await dbRanking
+                    .from('personal_records')
+                    .select(`
+                        *,
+                        perfis!inner(
+                            nome_completo,
+                            foto_url
+                        )
+                    `)
+                    .eq('distancia_km', distancia)
+                    .order('tempo', { ascending: true })
+                    .limit(10);
+                
+                if (error) {
+                    console.error('❌ Erro ao buscar ranking:', error);
+                    throw error;
+                }
+                
+                console.log('✅ Recordes encontrados:', data.length);
+                console.log('📊 Dados:', data);
+                
+                // Renderizar resultados
+                if (data && data.length > 0) {
+                    lista.innerHTML = data.map((record, index) => 
+                        criarLinhaRanking(record, index + 1)
+                    ).join('');
+                } else {
+                    const distanciaNome = distancia === 5.0 ? '5K' :
+                                        distancia === 10.0 ? '10K' :
+                                        distancia === 21.1 ? 'Meia Maratona' :
+                                        distancia === 42.2 ? 'Maratona' : `${distancia}km`;
+                    
+                    lista.innerHTML = `
+                        <div class="loading-message">
+                            <h3 style="color: var(--texto-secundario);">🏆 Nenhum recorde registrado para ${distanciaNome}</h3>
+                            <p style="margin-top: 10px;">Seja o primeiro a estabelecer um recorde!</p>
+                        </div>
+                    `;
+                }
+                
+            } catch (erro) {
+                console.error('❌ Erro ao carregar ranking:', erro);
+                lista.innerHTML = `
+                    <div class="error-message">
+                        <h3>⚠️ Erro ao carregar ranking</h3>
+                        <p style="margin-top: 10px;">Tente novamente mais tarde.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Função para trocar distância
+        function trocarDistancia(distancia) {
+            distanciaAtual = distancia;
+            
+            // Atualizar botões ativos
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (parseFloat(btn.dataset.distance) === distancia) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Carregar novo ranking
+            carregarRanking(distancia);
+        }
+        
+        // Carregar quando a página estiver pronta (padrão 5K)
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarRanking(5.0);
+        });
     </script>
+    
+    <!-- Menu componentizado -->
     <script src="header-menu.js"></script>
 </body>
 </html>
