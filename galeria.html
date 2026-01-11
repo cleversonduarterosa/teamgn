@@ -230,22 +230,22 @@
                 fotos: [], filtro: 'todos', lightboxAberto: false, fotoIndex: 0,
                 
                 async init() {
-                    const { data } = await supabase.from('galeria').select('*').eq('publica', true).order('data_foto', { ascending: false });
+                    const { data } = await supabase.from('galeria_fotos').select('*').eq('publica', true).eq('aprovada', true).order('data_foto', { ascending: false });
                     this.fotos = data || [];
                     
                     // Se não houver fotos, criar exemplos
                     if (this.fotos.length === 0) {
                         this.fotos = [
-                            { id: 1, titulo: 'Treino de domingo', categoria: 'treinos', data_foto: '2025-01-01', foto_url: null },
-                            { id: 2, titulo: 'Corrida 10K', categoria: 'corridas', data_foto: '2024-12-15', foto_url: null },
-                            { id: 3, titulo: 'Confraternização', categoria: 'eventos', data_foto: '2024-12-20', foto_url: null },
+                            { id: 1, titulo: 'Treino de domingo', tipo: 'treinos', data_foto: '2025-01-01', foto_url: null },
+                            { id: 2, titulo: 'Corrida 10K', tipo: 'corridas', data_foto: '2024-12-15', foto_url: null },
+                            { id: 3, titulo: 'Confraternização', tipo: 'eventos', data_foto: '2024-12-20', foto_url: null },
                         ];
                     }
                 },
                 
                 get fotosFiltradas() {
                     if (this.filtro === 'todos') return this.fotos;
-                    return this.fotos.filter(f => f.categoria === this.filtro);
+                    return this.fotos.filter(f => f.tipo === this.filtro);
                 },
                 
                 get fotoAtual() {
