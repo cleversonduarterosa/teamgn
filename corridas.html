@@ -274,10 +274,10 @@
     
     <!-- Script de conexão e carregamento -->
     <script>
-        // Configuração Supabase
-        const SUPABASE_URL = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Configuração Supabase (usando nome único para evitar conflito)
+        const SUPABASE_URL_CORRIDAS = 'https://nofgmwjaqeovrsdxzfib.supabase.co';
+        const SUPABASE_KEY_CORRIDAS = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5vZmdtd2phcWVvdnJzZHh6ZmliIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc0NTE2ODMsImV4cCI6MjA4MzAyNzY4M30.y1Iem-Qk-gIjwiK1jyzbZgdUAe7934pGg3hsjGB0-5U';
+        const dbCorridas = window.supabase.createClient(SUPABASE_URL_CORRIDAS, SUPABASE_KEY_CORRIDAS);
         
         // Função para formatar data
         function formatarData(dataString) {
@@ -350,7 +350,7 @@
                 console.log('📅 Buscando corridas a partir de:', hoje);
                 
                 // Query corrigida com os campos reais do banco
-                const { data, error } = await supabase
+                const { data, error } = await dbCorridas
                     .from('corridas')
                     .select('*')
                     .eq('exibir_calendario', true)  // Só corridas marcadas para exibir
