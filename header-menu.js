@@ -13,6 +13,11 @@
     // ======================================================================
     
     const headerCSS = `
+        /* Remove sublinhado de TODOS os links */
+        header a {
+            text-decoration: none !important;
+        }
+        
         /* Header */
         header {
             position: fixed;
@@ -38,8 +43,22 @@
             height: 75px;
         }
         
-        .logo { display: flex; align-items: center; gap: 12px; }
-        .logo-img { width: 50px; height: 50px; border-radius: 50%; }
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            text-decoration: none !important;
+        }
+        
+        .logo:hover {
+            text-decoration: none !important;
+        }
+        
+        .logo-img { 
+            width: 50px; 
+            height: 50px; 
+            border-radius: 50%; 
+        }
         
         /* CORREÇÃO: Logo Text - Coloca Saúde & Performance embaixo de TEAM GN */
         .logo-text { 
@@ -47,9 +66,26 @@
             flex-direction: column; 
             gap: 8px; 
             line-height: 1;
+            text-decoration: none !important;
         }
-        .logo-text .nome { font-size: 1.1rem; font-weight: 900; color: var(--verde-neon); letter-spacing: 1px; font-family: 'Montserrat', sans-serif; margin: 0; padding: 0; }
-        .logo-text .subtitulo { font-size: 0.65rem; color: var(--texto-secundario); margin: 0; padding: 0; line-height: 1; }
+        .logo-text .nome { 
+            font-size: 1.1rem; 
+            font-weight: 900; 
+            color: var(--verde-neon); 
+            letter-spacing: 1px; 
+            font-family: 'Montserrat', sans-serif; 
+            margin: 0; 
+            padding: 0;
+            text-decoration: none !important;
+        }
+        .logo-text .subtitulo { 
+            font-size: 0.65rem; 
+            color: var(--texto-secundario); 
+            margin: 0; 
+            padding: 0; 
+            line-height: 1;
+            text-decoration: none !important;
+        }
         
         /* Navigation */
         .nav-links {

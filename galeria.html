@@ -22,6 +22,26 @@
             box-sizing: border-box; 
         }
         
+        /* SOLUÇÃO DEFINITIVA - Remove TODAS as linhas azuis */
+        *, *:before, *:after {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-focus-ring-color: transparent !important;
+        }
+        
+        button, a, input, select, textarea, [tabindex] {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        
+        button:focus, button:active,
+        a:focus, a:active,
+        input:focus, input:active {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            box-shadow: none !important;
+        }
+        
         body { 
             font-family: 'Open Sans', sans-serif; 
             background: var(--fundo-principal); 
@@ -75,6 +95,21 @@
             cursor: pointer; 
             transition: all 0.3s;
             font-family: 'Open Sans', sans-serif;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-user-select: none !important;
+            user-select: none !important;
+        }
+        
+        .filtro-btn:focus-visible {
+            outline: none !important;
+        }
+        
+        .filtro-btn:focus,
+        .filtro-btn:active {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         
         .filtro-btn:hover, 
@@ -180,7 +215,15 @@
             border: none; 
             color: white; 
             font-size: 2rem; 
-            cursor: pointer; 
+            cursor: pointer;
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
+        }
+        
+        .lightbox-close:focus,
+        .lightbox-close:active {
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         
         .lightbox-info { 
@@ -204,10 +247,19 @@
             cursor: pointer; 
             font-size: 1.5rem;
             color: var(--texto-principal);
+            outline: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         
         .lightbox-nav:hover { 
             border-color: var(--verde-neon); 
+        }
+        
+        .lightbox-nav:focus,
+        .lightbox-nav:active {
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
         
         .lightbox-nav.prev { 
@@ -265,10 +317,10 @@
     <section class="container">
         <!-- Filtros -->
         <div class="filtros">
-            <button class="filtro-btn active" data-tipo="todos">Todos</button>
-            <button class="filtro-btn" data-tipo="treino">Treinos</button>
-            <button class="filtro-btn" data-tipo="corrida">Corridas</button>
-            <button class="filtro-btn" data-tipo="evento">Eventos</button>
+            <button class="filtro-btn active" data-tipo="todos" tabindex="-1">Todos</button>
+            <button class="filtro-btn" data-tipo="treino" tabindex="-1">Treinos</button>
+            <button class="filtro-btn" data-tipo="corrida" tabindex="-1">Corridas</button>
+            <button class="filtro-btn" data-tipo="evento" tabindex="-1">Eventos</button>
         </div>
         
         <!-- Grid de Fotos -->
@@ -302,6 +354,60 @@
     
     <!-- Supabase JS -->
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <!-- SCRIPT PARA FORÇAR REMOÇÃO DE OUTLINE AZUL -->
+    <script>
+        // Força remoção de outline IMEDIATAMENTE
+        (function() {
+            // CSS via JavaScript (mais forte que qualquer outro CSS)
+            const forceNoOutlineCSS = document.createElement('style');
+            forceNoOutlineCSS.id = 'force-no-outline';
+            forceNoOutlineCSS.innerHTML = `
+                *, *:before, *:after, *:focus, *:active {
+                    outline: none !important;
+                    -webkit-tap-highlight-color: transparent !important;
+                    -webkit-focus-ring-color: transparent !important;
+                    box-shadow: none !important;
+                }
+                
+                button, a, input, select, textarea, [tabindex], .filtro-btn {
+                    outline: 0 !important;
+                    outline-width: 0 !important;
+                    outline-style: none !important;
+                    outline-color: transparent !important;
+                    -webkit-tap-highlight-color: rgba(0,0,0,0) !important;
+                }
+            `;
+            document.head.appendChild(forceNoOutlineCSS);
+            
+            // Remove outline de TODOS os elementos quando clicados
+            document.addEventListener('click', function(e) {
+                if (e.target) {
+                    e.target.style.outline = 'none';
+                    e.target.style.boxShadow = 'none';
+                }
+            }, true);
+            
+            // Remove outline de todos os botões na página
+            document.addEventListener('DOMContentLoaded', function() {
+                const allButtons = document.querySelectorAll('button, a, input, .filtro-btn');
+                allButtons.forEach(function(btn) {
+                    btn.style.outline = 'none';
+                    btn.style.webkitTapHighlightColor = 'transparent';
+                    
+                    btn.addEventListener('focus', function() {
+                        this.style.outline = 'none';
+                        this.style.boxShadow = 'none';
+                    });
+                    
+                    btn.addEventListener('click', function() {
+                        this.style.outline = 'none';
+                        this.style.boxShadow = 'none';
+                    });
+                });
+            });
+        })();
+    </script>
     
     <!-- Script da Galeria -->
     <script>
@@ -470,6 +576,41 @@
         // Fechar lightbox clicando fora
         document.getElementById('lightbox').addEventListener('click', function(e) {
             if (e.target === this) fecharLightbox();
+        });
+    </script>
+    
+    <!-- SCRIPT ANTI-OUTLINE FORÇADO -->
+    <script>
+        // Força remoção BRUTAL do outline via inline styles
+        document.addEventListener('DOMContentLoaded', function() {
+            const botoes = document.querySelectorAll('.filtro-btn');
+            
+            botoes.forEach(function(btn) {
+                // Define inline styles (mais forte que CSS)
+                btn.style.outline = 'none';
+                btn.style.outlineWidth = '0';
+                btn.style.outlineStyle = 'none';
+                btn.style.outlineColor = 'transparent';
+                btn.style.webkitTapHighlightColor = 'transparent';
+                
+                // Remove outline em TODOS os eventos
+                btn.addEventListener('mousedown', function(e) {
+                    this.style.outline = 'none';
+                    this.style.boxShadow = 'none';
+                });
+                
+                btn.addEventListener('click', function(e) {
+                    this.style.outline = 'none';
+                    this.style.boxShadow = 'none';
+                    this.blur(); // Remove focus imediatamente
+                });
+                
+                btn.addEventListener('focus', function(e) {
+                    this.style.outline = 'none';
+                    this.style.boxShadow = 'none';
+                    this.blur(); // Remove focus imediatamente
+                });
+            });
         });
     </script>
     
