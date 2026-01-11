@@ -157,6 +157,13 @@
         .atleta-local {
             color: var(--texto-secundario);
             font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+        
+        .atleta-tempo-equipe {
+            color: var(--verde-neon);
+            font-size: 0.85rem;
+            font-weight: 700;
             margin-bottom: 20px;
         }
         
@@ -284,6 +291,34 @@
             return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
         }
         
+        // Função para calcular tempo de equipe
+        function calcularTempoEquipe(dataIngresso) {
+            if (!dataIngresso) return null;
+            
+            const hoje = new Date();
+            const ingresso = new Date(dataIngresso + 'T00:00:00');
+            
+            let anos = hoje.getFullYear() - ingresso.getFullYear();
+            let meses = hoje.getMonth() - ingresso.getMonth();
+            
+            // Ajustar se os meses forem negativos
+            if (meses < 0) {
+                anos--;
+                meses += 12;
+            }
+            
+            // Formatar texto
+            if (anos > 0 && meses > 0) {
+                return `${anos} ${anos === 1 ? 'ano' : 'anos'} e ${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+            } else if (anos > 0) {
+                return `${anos} ${anos === 1 ? 'ano' : 'anos'}`;
+            } else if (meses > 0) {
+                return `${meses} ${meses === 1 ? 'mês' : 'meses'}`;
+            } else {
+                return 'Menos de 1 mês';
+            }
+        }
+        
         // Função para criar card de atleta
         function criarCardAtleta(atleta) {
             const iniciais = criarIniciais(atleta.nome_completo);
@@ -306,6 +341,11 @@
                 ? `<p class="atleta-local">📍 ${local}</p>`
                 : '';
             
+            const tempoEquipe = calcularTempoEquipe(atleta.data_ingresso);
+            const tempoEquipeHtml = tempoEquipe
+                ? `<p class="atleta-tempo-equipe">⏱️ ${tempoEquipe} na equipe</p>`
+                : '';
+            
             const totalCorridas = atleta.total_corridas || 0;
             const totalTreinos = atleta.total_treinos || 0;
             
@@ -316,6 +356,7 @@
                     ${apelido}
                     <p class="categoria">${categoria}</p>
                     ${localHtml}
+                    ${tempoEquipeHtml}
                     <div class="stats">
                         <div class="stat-item">
                             <div class="stat-value">${totalCorridas}</div>
@@ -340,10 +381,11 @@
                 // Query corrigida com os campos reais do banco (tabela perfis)
                 const { data, error } = await dbAtletas
                     .from('perfis')
-                    .select('id, nome_completo, apelido, foto_url, cidade, estado, bio, categoria, total_corridas, total_treinos')
-                    .eq('perfil_publico', true)  // Só perfis públicos
-                    .eq('ativo', true)           // Só ativos
-                    .order('nome_completo', { ascending: true });
+                    .select('id, nome_completo, apelido, foto_url, cidade, estado, bio, categoria, total_corridas, total_treinos, data_ingresso, papel')
+                    .eq('perfil_publico', true)   // Só perfis públicos
+                    .eq('ativo', true)            // Só ativos
+                    .neq('papel', 'admin')        // Excluir admins
+                    .order('data_ingresso', { ascending: true });  // Mais antigo primeiro
                 
                 if (error) {
                     console.error('❌ Erro ao buscar atletas:', error);
