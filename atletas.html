@@ -292,11 +292,11 @@
         }
         
         // Função para calcular tempo de equipe
-        function calcularTempoEquipe(dataIngresso) {
-            if (!dataIngresso) return null;
+        function calcularTempoEquipe(membroDesde) {
+            if (!membroDesde) return null;
             
             const hoje = new Date();
-            const ingresso = new Date(dataIngresso + 'T00:00:00');
+            const ingresso = new Date(membroDesde + 'T00:00:00');
             
             let anos = hoje.getFullYear() - ingresso.getFullYear();
             let meses = hoje.getMonth() - ingresso.getMonth();
@@ -341,7 +341,7 @@
                 ? `<p class="atleta-local">📍 ${local}</p>`
                 : '';
             
-            const tempoEquipe = calcularTempoEquipe(atleta.data_ingresso);
+            const tempoEquipe = calcularTempoEquipe(atleta.membro_desde);
             const tempoEquipeHtml = tempoEquipe
                 ? `<p class="atleta-tempo-equipe">⏱️ ${tempoEquipe} na equipe</p>`
                 : '';
@@ -381,11 +381,11 @@
                 // Query corrigida com os campos reais do banco (tabela perfis)
                 const { data, error } = await dbAtletas
                     .from('perfis')
-                    .select('id, nome_completo, apelido, foto_url, cidade, estado, bio, categoria, total_corridas, total_treinos, data_ingresso, papel')
+                    .select('id, nome_completo, apelido, foto_url, cidade, estado, bio, categoria, total_corridas, total_treinos, membro_desde, papel')
                     .eq('perfil_publico', true)   // Só perfis públicos
                     .eq('ativo', true)            // Só ativos
                     .neq('papel', 'admin')        // Excluir admins
-                    .order('data_ingresso', { ascending: true });  // Mais antigo primeiro
+                    .order('membro_desde', { ascending: true });  // Mais antigo primeiro
                 
                 if (error) {
                     console.error('❌ Erro ao buscar atletas:', error);
